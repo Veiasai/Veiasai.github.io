@@ -4900,7 +4900,14 @@
 <li>mnt ns必须被挂在Private mount point</li>
 <li>pid ns没有必要持久化，必须保持容器进程运行，再将hook程序加入对应pid ns。每次容器运行，都创建新的pid ns</li>
 </ol>
-<h2 id="Network"><a href="#Network" class="headerlink" title="Network"></a>Network</h2><p>TODO</p>
+<h2 id="Network"><a href="#Network" class="headerlink" title="Network"></a>Network</h2><p><a href="https://github.com/genuinetools/netns" target="_blank" rel="noopener">Network Hook</a></p>
+<p>Github上有一个现成的hook供我们使用，叫做netns。我们可以先用netns验证runtime工作正常，以后再实现自己的hook，从而达成全部自己实现的目标。</p>
+<p>通过netns源码可知，在启动netns时，runtime需要将容器的status传递到netns的stdin。因为我在上一版本中，已经实现了将status保存为文件，这里只要将status.file打开，并设置fd为stdin，之后调用exec运行hook，将fd传递给子进程，就可以了。</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="comment">// posix ensure it opens the least available fd</span></span><br><span class="line">close(<span class="built_in">stdin</span>);</span><br><span class="line">open(<span class="string">"status.json"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// or</span></span><br><span class="line"><span class="keyword">int</span> fd = open(<span class="string">"status.json"</span>);</span><br><span class="line">dup2(fd, <span class="built_in">stdin</span>);</span><br><span class="line">close(fd);</span><br></pre></td></tr></table></figure>
+
+<p>status里带有pid，netns通过访问/proc/pid/ns，获取到目标network namespace，再将创建的veth link过去。</p>
+<p>netns默认没有打开bridge的转发功能。</p>
+<figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">sudp ifconfig &lt;bridgename&gt; up</span><br><span class="line">sudo iptables -A FORWARD -o br0 -j ACCEPT</span><br><span class="line">sudo iptables -A FORWARD -i br0 -j ACCEPT</span><br><span class="line">sudo iptables -t nat -A POSTROUTING -s &lt;subnet&gt; ! -o &lt;bridgename&gt; -j MASQUERADE</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>Note</category>
