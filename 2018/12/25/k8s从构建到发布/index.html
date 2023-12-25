@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>k8s从构建到发布 | Tornado</title><meta name="description" content="将曾经的一个Web应用，React+Nginx，Java+Tomcat，Mysql，MongoDB，部署到k8s上，包括CICD、LB、scaling，并且进行监控和测试。   rke 部署k8s，非常轻便简单，另一篇博文有详细介绍。  drone drone是一个基于容器的ci&#x2F;cd平台。  1.0.0版本push没有反应，感觉有残留bug。  0.8.5版本正常运行，但界面太丑，描述文件也很冗"><meta name="keywords" content="rancher,kubernetes,drone,helm,prometheus,grafana"><meta name="author" content="Veiasai"><meta name="copyright" content="Veiasai"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="k8s从构建到发布"><meta name="twitter:description" content="将曾经的一个Web应用，React+Nginx，Java+Tomcat，Mysql，MongoDB，部署到k8s上，包括CICD、LB、scaling，并且进行监控和测试。   rke 部署k8s，非常轻便简单，另一篇博文有详细介绍。  drone drone是一个基于容器的ci&#x2F;cd平台。  1.0.0版本push没有反应，感觉有残留bug。  0.8.5版本正常运行，但界面太丑，描述文件也很冗"><meta name="twitter:image" content="http://veiasai.github.io/img/avatar.png"><meta property="og:type" content="article"><meta property="og:title" content="k8s从构建到发布"><meta property="og:url" content="http://veiasai.github.io/2018/12/25/k8s%E4%BB%8E%E6%9E%84%E5%BB%BA%E5%88%B0%E5%8F%91%E5%B8%83/"><meta property="og:site_name" content="Tornado"><meta property="og:description" content="将曾经的一个Web应用，React+Nginx，Java+Tomcat，Mysql，MongoDB，部署到k8s上，包括CICD、LB、scaling，并且进行监控和测试。   rke 部署k8s，非常轻便简单，另一篇博文有详细介绍。  drone drone是一个基于容器的ci&#x2F;cd平台。  1.0.0版本push没有反应，感觉有残留bug。  0.8.5版本正常运行，但界面太丑，描述文件也很冗"><meta property="og:image" content="http://veiasai.github.io/img/avatar.png"><meta property="article:published_time" content="2018-12-25T09:04:33.000Z"><meta property="article:modified_time" content="2023-11-06T04:04:47.634Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://veiasai.github.io/2018/12/25/k8s%E4%BB%8E%E6%9E%84%E5%BB%BA%E5%88%B0%E5%8F%91%E5%B8%83/"><link rel="prev" title="数字部件设计-FPGA课程笔记" href="http://veiasai.github.io/2018/12/25/%E6%95%B0%E5%AD%97%E9%83%A8%E4%BB%B6%E8%AE%BE%E8%AE%A1-FPGA%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/"><link rel="next" title="Ansible部署Hadoop" href="http://veiasai.github.io/2018/11/26/Ansible%E9%83%A8%E7%BD%B2Hadoop/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script><script src="https://cdn.jsdelivr.net/npm/blueimp-md5/js/md5.min.js"></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"cookieDomain":"https://xxx/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  bookmark: {
+    message_prev: 'Press',
+    message_next: 'to bookmark this page'
+  },
+  runtime_unit: 'days',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: {"text":"I,LOVE,YOU","fontSize":"15px"},
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="Tornado" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">69</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">67</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">10</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#rke"><span class="toc-number">1.</span> <span class="toc-text">rke</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#drone"><span class="toc-number">2.</span> <span class="toc-text">drone</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#React-Nginx"><span class="toc-number">3.</span> <span class="toc-text">React+Nginx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-Tomcat"><span class="toc-number">4.</span> <span class="toc-text">Java+Tomcat</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mysql%E3%80%81Mongo"><span class="toc-number">5.</span> <span class="toc-text">Mysql、Mongo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Prometheus%E3%80%81Grafana"><span class="toc-number">6.</span> <span class="toc-text">Prometheus、Grafana</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ingress"><span class="toc-number">7.</span> <span class="toc-text">Ingress</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AutoScaling"><span class="toc-number">8.</span> <span class="toc-text">AutoScaling</span></a></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://i.loli.net/2020/05/01/IuWi8QbHvzjlOPw.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">Tornado</a></span><span class="pull_right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">k8s从构建到发布</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="Created 2018-12-25 09:04:33"><i class="fa fa-calendar" aria-hidden="true"></i> Created 2018-12-25</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="Updated 2023-11-06 04:04:47"><i class="fa fa-history" aria-hidden="true"></i> Updated 2023-11-06</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/CloudNative/">CloudNative</a></span></div><div class="meta-secondline"> </div><div class="meta-thirdline"><span class="post-meta-pv-cv"><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>Post View:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>将曾经的一个Web应用，React+Nginx，Java+Tomcat，Mysql，MongoDB，部署到k8s上，包括CICD、LB、scaling，并且进行监控和测试。</p>
+<a id="more"></a>
+
+<h2 id="rke"><a href="#rke" class="headerlink" title="rke"></a>rke</h2><ul>
+<li>部署k8s，非常轻便简单，另一篇博文有详细介绍。</li>
+</ul>
+<h2 id="drone"><a href="#drone" class="headerlink" title="drone"></a>drone</h2><ul>
+<li><p>drone是一个基于容器的ci/cd平台。</p>
+</li>
+<li><p>1.0.0版本push没有反应，感觉有残留bug。</p>
+</li>
+<li><p>0.8.5版本正常运行，但界面太丑，描述文件也很冗余。</p>
+<hr>
+</li>
+<li><p>像maven这种，有一个本地仓库的依赖管理工具，由于drone是容器方式运行，并不会持久化本地仓库，导致每次maven都需要全量下载依赖包，速度会非常慢，可以通过挂载的方式持久化，将本地仓库挂载到宿主机硬盘上。挂载需要trust该仓库，这需要drone admin账户权限，需要在启动drone的参数中设定。<br>  <code>- DRONE_ADMIN=Yourname</code></p>
+</li>
+<li><p>docker/plugin就很蠢了，它是docker in docker，问题同上，每次都会重新下载基础镜像，有时候基础镜像很大，ubuntu就接近2G，速度就非常慢，而且还不能通过挂载去持久化这部分，安全和轻便之间有个取舍，希望以后解决办法吧。</p>
+</li>
+</ul>
+<h2 id="React-Nginx"><a href="#React-Nginx" class="headerlink" title="React+Nginx"></a>React+Nginx</h2><ul>
+<li>使用node镜像build项目。</li>
+<li>使用nginx镜像，将build文件放到nginx默认目录下，修改nginx.conf，完成镜像打包并推送到dockerhub。</li>
+</ul>
+<h2 id="Java-Tomcat"><a href="#Java-Tomcat" class="headerlink" title="Java+Tomcat"></a>Java+Tomcat</h2><ul>
+<li>使用maven镜像build项目。</li>
+<li>使用Tomcat镜像，将war文件放到Tomcat webapp下。</li>
+</ul>
+<h2 id="Mysql、Mongo"><a href="#Mysql、Mongo" class="headerlink" title="Mysql、Mongo"></a>Mysql、Mongo</h2><ul>
+<li>使用replica-controller + service就可以启动单实例数据库了。</li>
+<li>Spring Data Jpa只能自动建表，不能建库，需要自己先去mysql中建一个数据库。这个我认为也不太好通过修改镜像的方式去直接达成，因为数据库一般也会持久化的，数据部分是挂载的，外部容易覆盖内部，需要小心对待。</li>
+</ul>
+<h2 id="Prometheus、Grafana"><a href="#Prometheus、Grafana" class="headerlink" title="Prometheus、Grafana"></a>Prometheus、Grafana</h2><ul>
+<li>使用别人写好的部署文件，即可部署node-exporter监控。</li>
+<li>一个比较好用的grafana k8s监控模板编号为351。</li>
+</ul>
+<h2 id="Ingress"><a href="#Ingress" class="headerlink" title="Ingress"></a>Ingress</h2><ul>
+<li>Ingress-controller的部署有些复杂，官网上有例子（所谓复杂其实也就是镜像源需要处理一下）。</li>
+<li>部署后，写新的ingress规则，将域名转发至服务。没有真域名的时候，随意杜撰，然后在client端修改hosts文件即可。</li>
+</ul>
+<h2 id="AutoScaling"><a href="#AutoScaling" class="headerlink" title="AutoScaling"></a>AutoScaling</h2><ul>
+<li>k8s 1.11以后推荐使用metrics-server作为集群中资源信息获取方式，只要将git上的部署文件中镜像替换为阿里云即可，同时还需要增加权限，比较粗暴的就是直接赋给admin权限。<br><code>kubectl create clusterrolebinding root-cluster-admin-binding --clusterrole=cluster-admin --serviceaccount=kube-system:metrics-server</code></li>
+<li>有了metrics-server，hpa就可以读取pod资源使用率，从而调度replica数量。</li>
+<li>Deployment中可以设置resource的limit，这里的cpu limit是以core数量为标准的，比如1就是指使用1个核。</li>
+<li>hpa中的默认资源临界值是80%，这个比例是相对于limit而言的，假如limit为1，也就是说当cpu占用率为0.8core时就会发生调度。</li>
+<li>实测发现如果<code>min=1, max=4</code>，scale会直接从1个pod变成4个，看起来是少了某种限制，比如我可能期望scale是逐个增长的。两次scale之间是有冷却的，从1到4之后，即使压力很快减小，也不会马上降为1个pod。</li>
+<li>如果要使用其他资源作为指标，需要自定义，这部分我还未尝试。</li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Veiasai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://veiasai.github.io/2018/12/25/k8s%E4%BB%8E%E6%9E%84%E5%BB%BA%E5%88%B0%E5%8F%91%E5%B8%83/">http://veiasai.github.io/2018/12/25/k8s%E4%BB%8E%E6%9E%84%E5%BB%BA%E5%88%B0%E5%8F%91%E5%B8%83/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/rancher/">rancher</a><a class="post-meta__tags" href="/tags/kubernetes/">kubernetes</a><a class="post-meta__tags" href="/tags/drone/">drone</a><a class="post-meta__tags" href="/tags/helm/">helm</a><a class="post-meta__tags" href="/tags/prometheus/">prometheus</a><a class="post-meta__tags" href="/tags/grafana/">grafana</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2018/12/25/%E6%95%B0%E5%AD%97%E9%83%A8%E4%BB%B6%E8%AE%BE%E8%AE%A1-FPGA%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0/"><img class="prev_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">数字部件设计-FPGA课程笔记</div></div></a></div><div class="next-post pull_right"><a href="/2018/11/26/Ansible%E9%83%A8%E7%BD%B2Hadoop/"><img class="next_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Ansible部署Hadoop</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> Recommend</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2018/11/22/rke部署kubernetes/" title="rke部署kubernetes"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2018-11-22</div><div class="relatedPosts_title">rke部署kubernetes</div></div></a></div><div class="relatedPosts_item"><a href="/2018/08/21/minikube-helm-istio/" title="minikube/helm/istio初体验"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2018-08-21</div><div class="relatedPosts_title">minikube/helm/istio初体验</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> Comment</span></div><div id="gitalk-container"></div><script>var gitalk = new Gitalk({
+  clientID: '8618b099f7db9d797dc7',
+  clientSecret: '4edc8a4fb8b173079b5a617fb9f23120a306e1b2',
+  repo: 'Veiasai.github.io',
+  owner: 'Veiasai',
+  admin: ['Veiasai'],
+  id: md5(decodeURI(location.pathname)),
+  language: 'en',
+  perPage: 10,
+  distractionFreeMode: false,
+  pagerDirection: 'last',
+  createIssueManually: false,
+  updateCountCallback: commentCount
+})
+gitalk.render('gitalk-container')
+
+function commentCount(n){
+  try {
+    document.getElementsByClassName('gitalk-comment-count')[0].innerHTML= n
+  } catch (e) {
+    return false
+  }
+}</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Veiasai</div><div class="framework-info"><span>Driven </span><a href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme </span><a href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="Read Mode"></i><i class="fa fa-plus" id="font_plus" title="Increase font size"></i><i class="fa fa-minus" id="font_minus" title="Decrease font size"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="Traditional Chinese and Simplified Chinese Conversion" target="_self">繁</a><i class="darkmode fa fa-moon-o" id="darkmode" title="Dark Mode"></i></div><div id="rightside-config-show"><div id="rightside_config" title="Setting"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="Scroll to comment"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="Table of Contents" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="Back to top" aria-hidden="true"></i></div></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/third-party/ClickShowText.js"></script></body></html>

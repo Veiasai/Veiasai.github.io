@@ -1,0 +1,142 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>openstack单机多网卡 | Tornado</title><meta name="description" content="很久以前，搭建好openstack的时候，惊奇地发现，一个虚拟机可以绑定很多个interface，或者说port。  奇怪的事情是，如果在创建虚拟机时，绑定多个接口，初始化出来的虚拟机，将会无法连接。也就是说，多个接口并没有成功初始化。  绑定多个interface，在虚拟机看来就是插入了多张网卡。观察机器的启动日志，发现初始化时只会启动一张网卡，也就是顺序最靠前的网卡，但是哪张最靠前，是随机的。"><meta name="keywords" content="Network"><meta name="author" content="Veiasai"><meta name="copyright" content="Veiasai"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="openstack单机多网卡"><meta name="twitter:description" content="很久以前，搭建好openstack的时候，惊奇地发现，一个虚拟机可以绑定很多个interface，或者说port。  奇怪的事情是，如果在创建虚拟机时，绑定多个接口，初始化出来的虚拟机，将会无法连接。也就是说，多个接口并没有成功初始化。  绑定多个interface，在虚拟机看来就是插入了多张网卡。观察机器的启动日志，发现初始化时只会启动一张网卡，也就是顺序最靠前的网卡，但是哪张最靠前，是随机的。"><meta name="twitter:image" content="https://veiablog.oss-cn-shanghai.aliyuncs.com/taylor-vick-M5tzZtFCOfs-unsplash.jpg?x-oss-process=style/compress"><meta property="og:type" content="article"><meta property="og:title" content="openstack单机多网卡"><meta property="og:url" content="http://veiasai.github.io/2020/03/26/openstack%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1/"><meta property="og:site_name" content="Tornado"><meta property="og:description" content="很久以前，搭建好openstack的时候，惊奇地发现，一个虚拟机可以绑定很多个interface，或者说port。  奇怪的事情是，如果在创建虚拟机时，绑定多个接口，初始化出来的虚拟机，将会无法连接。也就是说，多个接口并没有成功初始化。  绑定多个interface，在虚拟机看来就是插入了多张网卡。观察机器的启动日志，发现初始化时只会启动一张网卡，也就是顺序最靠前的网卡，但是哪张最靠前，是随机的。"><meta property="og:image" content="https://veiablog.oss-cn-shanghai.aliyuncs.com/taylor-vick-M5tzZtFCOfs-unsplash.jpg?x-oss-process=style/compress"><meta property="article:published_time" content="2020-03-26T17:14:46.000Z"><meta property="article:modified_time" content="2023-11-06T04:04:47.642Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://veiasai.github.io/2020/03/26/openstack%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1/"><link rel="prev" title="MATLAB混合编程" href="http://veiasai.github.io/2020/03/29/MATLAB%E6%B7%B7%E5%90%88%E7%BC%96%E7%A8%8B/"><link rel="next" title="人生备份" href="http://veiasai.github.io/2020/03/13/%E4%BA%BA%E7%94%9F%E5%A4%87%E4%BB%BD/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script><script src="https://cdn.jsdelivr.net/npm/blueimp-md5/js/md5.min.js"></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"cookieDomain":"https://xxx/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  bookmark: {
+    message_prev: 'Press',
+    message_next: 'to bookmark this page'
+  },
+  runtime_unit: 'days',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: {"text":"I,LOVE,YOU","fontSize":"15px"},
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: false  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="Tornado" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">69</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">67</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">10</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://veiablog.oss-cn-shanghai.aliyuncs.com/taylor-vick-M5tzZtFCOfs-unsplash.jpg?x-oss-process=style/compress)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">Tornado</a></span><span class="pull_right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">openstack单机多网卡</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="Created 2020-03-26 17:14:46"><i class="fa fa-calendar" aria-hidden="true"></i> Created 2020-03-26</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="Updated 2023-11-06 04:04:47"><i class="fa fa-history" aria-hidden="true"></i> Updated 2023-11-06</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Note/">Note</a></span></div><div class="meta-secondline"> </div><div class="meta-thirdline"><span class="post-meta-pv-cv"><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>Post View:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>很久以前，搭建好openstack的时候，惊奇地发现，<br>一个虚拟机可以绑定很多个interface，或者说port。</p>
+<p><img src="/2020/03/26/openstack%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1/C9104E0D-4083-451E-B470-0F9A97189123.png" alt="图片加载失败"></p>
+<p>奇怪的事情是，如果在创建虚拟机时，绑定多个接口，初始化出来的虚拟机，将会无法连接。<br>也就是说，多个接口并没有成功初始化。</p>
+<p><img src="/2020/03/26/openstack%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1/WX20200326-172148@2x.png" alt="图片加载失败"></p>
+<p>绑定多个interface，在虚拟机看来就是插入了多张网卡。<br>观察机器的启动日志，发现初始化时只会启动一张网卡，也就是顺序最靠前的网卡，<br>但是哪张最靠前，是随机的。所以，通常是因为两张卡中只有一张是连接到外部网络的，<br>如果第一张初始化的就是内部网络的，就没法连接到机器上了。</p>
+<p>这一点应该可以通过修改镜像里的初始化操作来让他多个卡都初始化，<br>这里先不谈如何全自动，讨论一下如何手动操作。</p>
+<p>首先，按正常的操作，选取一个网络加入，创建虚拟机。<br>这时能够正常ssh到机器上。</p>
+<p>以ubuntu为例。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/network/interfaces</span></span><br><span class="line"><span class="comment"># This file describes the network interfaces available on your system</span></span><br><span class="line"><span class="comment"># and how to activate them. For more information, see interfaces(5).</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># The loopback network interface</span></span><br><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line"></span><br><span class="line"><span class="comment"># Source interfaces</span></span><br><span class="line"><span class="comment"># Please check /etc/network/interfaces.d before changing this file</span></span><br><span class="line"><span class="comment"># as interfaces may have been defined in /etc/network/interfaces.d</span></span><br><span class="line"><span class="comment"># See LP: #1262951</span></span><br><span class="line"><span class="built_in">source</span> /etc/network/interfaces.d/*.cfg</span><br></pre></td></tr></table></figure>
+
+<p>而<code>interfaces.d</code>里只有一个文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># interfaces.d/50-cloud-init.cfg</span></span><br><span class="line"><span class="comment"># This file is generated from information provided by</span></span><br><span class="line"><span class="comment"># the datasource.  Changes to it will not persist across an instance.</span></span><br><span class="line"><span class="comment"># To disable cloud-init's network configuration capabilities, write a file</span></span><br><span class="line"><span class="comment"># /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg with the following:</span></span><br><span class="line"><span class="comment"># network: &#123;config: disabled&#125;</span></span><br><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line"></span><br><span class="line">auto ens3</span><br><span class="line">iface ens3 inet dhcp</span><br></pre></td></tr></table></figure>
+
+<p>这里定义了网卡的配置，通常来说，<br>一个接口要生效，需要配置自身的IP地址，DNS Server，接入的子网掩码。<br>像这个文件里只写了一行，dhcp，因为dhcp协议会通过广播去请求这些数据，<br>dhcp server会告诉我们应该用什么ip、dns。</p>
+<p>接下来，给机器绑定更多的接口。</p>
+<p><img src="/2020/03/26/openstack%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1/WX20200326-173043@2x.png" alt="图片加载失败"></p>
+<p>然后在连接到机器上，用<code>ip addr</code>命令查看。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">sudo ip addr</span><br><span class="line"></span><br><span class="line">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1</span><br><span class="line">    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00</span><br><span class="line">    inet 127.0.0.1/8 scope host lo</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 ::1/128 scope host</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">2: ens3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1450 qdisc pfifo_fast state UP group default qlen 1000</span><br><span class="line">    link/ether fa:16:3e:33:0f:58 brd ff:ff:ff:ff:ff:ff</span><br><span class="line">    inet 10.0.0.54/16 brd 10.0.255.255 scope global ens3</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">    inet6 fe80::f816:3eff:fe33:f58/64 scope link</span><br><span class="line">       valid_lft forever preferred_lft forever</span><br><span class="line">4: ens7: &lt;BROADCAST,MULTICAST&gt; mtu 1450 qdisc pfifo_fast state DOWN group default qlen 1000</span><br><span class="line">    link/ether fa:16:3e:ca:fb:f5 brd ff:ff:ff:ff:ff:ff</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，多了一个ens7。<br>使用<code>ifup ens7</code>。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo ifup ens7</span><br><span class="line"></span><br><span class="line">Unknown interface ens7</span><br></pre></td></tr></table></figure>
+
+<p>现在还无法启动这个interface，因为还没有配置。<br>转到<code>/etc/network/interfaces</code>，添加<code>ens7</code>的配置。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># /etc/network/interfaces.d/50-cloud-init.cfg</span></span><br><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line"></span><br><span class="line">auto ens3</span><br><span class="line">iface ens3 inet dhcp</span><br><span class="line"></span><br><span class="line">auto ens7</span><br><span class="line">iface ens7 inet dhcp</span><br></pre></td></tr></table></figure>
+
+<p>然后，<code>sudo ifup ens7</code>。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Internet Systems Consortium DHCP Client 4.3.3</span><br><span class="line">Copyright 2004-2015 Internet Systems Consortium.</span><br><span class="line">All rights reserved.</span><br><span class="line">For info, please visit https://www.isc.org/software/dhcp/</span><br><span class="line"></span><br><span class="line">Listening on LPF/ens7/fa:16:3e:ca:fb:f5</span><br><span class="line">Sending on   LPF/ens7/fa:16:3e:ca:fb:f5</span><br><span class="line">Sending on   Socket/fallback</span><br><span class="line">DHCPDISCOVER on ens7 to 255.255.255.255 port 67 interval 3 (xid=0x8924d41)</span><br><span class="line">DHCPREQUEST of 10.1.0.8 on ens7 to 255.255.255.255 port 67 (xid=0x414d9208)</span><br><span class="line">DHCPOFFER of 10.1.0.8 from 10.1.0.2</span><br><span class="line">DHCPACK of 10.1.0.8 from 10.1.0.2</span><br><span class="line">bound to 10.1.0.8 -- renewal <span class="keyword">in</span> 34076 seconds.</span><br></pre></td></tr></table></figure>
+
+<p>配置完毕，现在就拥有了两个网卡。</p>
+<p>如果和一个网络建立多个interfaces，就相当于有多根网线插入到一个交换机上。<br>然后将其中一个网卡交给dpdk管理，监听另一个网卡，就可以实现一个机器测试dpdk功能了。</p>
+<p>需要注意的是，关闭掉interface的security功能，避免dpdk编程时，一些包被openstack丢弃。</p>
+<p><img src="/2020/03/26/openstack%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1/WX20200326-173854@2x.png" alt="图片加载失败"></p>
+<p><img src="/2020/03/26/openstack%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1/1585215611440.jpg" alt="图片加载失败"></p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Veiasai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://veiasai.github.io/2020/03/26/openstack%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1/">http://veiasai.github.io/2020/03/26/openstack%E5%8D%95%E6%9C%BA%E5%A4%9A%E7%BD%91%E5%8D%A1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Network/">Network</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2020/03/29/MATLAB%E6%B7%B7%E5%90%88%E7%BC%96%E7%A8%8B/"><img class="prev_cover" src="https://veiablog.oss-cn-shanghai.aliyuncs.com/mike-petrucci-f6Xv0xs9JWg-unsplash.jpg?x-oss-process=style/compress" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">MATLAB混合编程</div></div></a></div><div class="next-post pull_right"><a href="/2020/03/13/%E4%BA%BA%E7%94%9F%E5%A4%87%E4%BB%BD/"><img class="next_cover" src="https://veiablog.oss-cn-shanghai.aliyuncs.com/kristopher-roller-PC_lbSSxCZE-unsplash.jpg?x-oss-process=style/compress" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">人生备份</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> Recommend</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2019/06/11/Dive-into-nginx-http-ssl-and-upstream-ssl/" title="Dive into nginx http_ssl and upstream ssl"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-06-11</div><div class="relatedPosts_title">Dive into nginx http_ssl and upstream ssl</div></div></a></div><div class="relatedPosts_item"><a href="/2019/04/11/How-to-limit-bandwidth-in-Swarm-overlay-network/" title="How to limit bandwidth in Swarm overlay network"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-04-11</div><div class="relatedPosts_title">How to limit bandwidth in Swarm overlay network</div></div></a></div><div class="relatedPosts_item"><a href="/2019/05/11/nmcli、hostnamectl等网络配置实战/" title="nmcli、hostnamectl等网络配置实战"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-05-11</div><div class="relatedPosts_title">nmcli、hostnamectl等网络配置实战</div></div></a></div><div class="relatedPosts_item"><a href="/2019/04/27/pxe-tftp-dhcp无人值守安装Centos7/" title="pxe+tftp+dhcp无人值守安装Centos7"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-04-27</div><div class="relatedPosts_title">pxe+tftp+dhcp无人值守安装Centos7</div></div></a></div><div class="relatedPosts_item"><a href="/2019/05/11/兼容legacy和uefi的pxe配置/" title="兼容legacy和uefi的pxe配置"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-05-11</div><div class="relatedPosts_title">兼容legacy和uefi的pxe配置</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> Comment</span></div><div id="gitalk-container"></div><script>var gitalk = new Gitalk({
+  clientID: '8618b099f7db9d797dc7',
+  clientSecret: '4edc8a4fb8b173079b5a617fb9f23120a306e1b2',
+  repo: 'Veiasai.github.io',
+  owner: 'Veiasai',
+  admin: ['Veiasai'],
+  id: md5(decodeURI(location.pathname)),
+  language: 'en',
+  perPage: 10,
+  distractionFreeMode: false,
+  pagerDirection: 'last',
+  createIssueManually: false,
+  updateCountCallback: commentCount
+})
+gitalk.render('gitalk-container')
+
+function commentCount(n){
+  try {
+    document.getElementsByClassName('gitalk-comment-count')[0].innerHTML= n
+  } catch (e) {
+    return false
+  }
+}</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Veiasai</div><div class="framework-info"><span>Driven </span><a href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme </span><a href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="Read Mode"></i><i class="fa fa-plus" id="font_plus" title="Increase font size"></i><i class="fa fa-minus" id="font_minus" title="Decrease font size"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="Traditional Chinese and Simplified Chinese Conversion" target="_self">繁</a><i class="darkmode fa fa-moon-o" id="darkmode" title="Dark Mode"></i></div><div id="rightside-config-show"><div id="rightside_config" title="Setting"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="Scroll to comment"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-arrow-up" id="go-up" title="Back to top" aria-hidden="true"></i></div></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/third-party/ClickShowText.js"></script></body></html>

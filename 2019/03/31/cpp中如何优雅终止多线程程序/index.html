@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>cpp中如何优雅终止多线程程序 | Tornado</title><meta name="description" content="原以为学了很多东西，停止一个多线程程序很容易，信号什么的一顿上，仔细思考发现并不简单。   背景 现在多线程应用非常常见，功能强大的同时也有很多新问题，为了便于描述，虚构一个具体场景。 假设有这样一个程序： 一个main thread，三个worker thread。 main thread负责初始化配置，创建其他线程，并join等待。 worker thread中各自有自己的运行逻辑，以轮询的方"><meta name="keywords" content="CPP"><meta name="author" content="Veiasai"><meta name="copyright" content="Veiasai"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="cpp中如何优雅终止多线程程序"><meta name="twitter:description" content="原以为学了很多东西，停止一个多线程程序很容易，信号什么的一顿上，仔细思考发现并不简单。   背景 现在多线程应用非常常见，功能强大的同时也有很多新问题，为了便于描述，虚构一个具体场景。 假设有这样一个程序： 一个main thread，三个worker thread。 main thread负责初始化配置，创建其他线程，并join等待。 worker thread中各自有自己的运行逻辑，以轮询的方"><meta name="twitter:image" content="http://veiasai.github.io/img/avatar.png"><meta property="og:type" content="article"><meta property="og:title" content="cpp中如何优雅终止多线程程序"><meta property="og:url" content="http://veiasai.github.io/2019/03/31/cpp%E4%B8%AD%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%BB%88%E6%AD%A2%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%A8%8B%E5%BA%8F/"><meta property="og:site_name" content="Tornado"><meta property="og:description" content="原以为学了很多东西，停止一个多线程程序很容易，信号什么的一顿上，仔细思考发现并不简单。   背景 现在多线程应用非常常见，功能强大的同时也有很多新问题，为了便于描述，虚构一个具体场景。 假设有这样一个程序： 一个main thread，三个worker thread。 main thread负责初始化配置，创建其他线程，并join等待。 worker thread中各自有自己的运行逻辑，以轮询的方"><meta property="og:image" content="http://veiasai.github.io/img/avatar.png"><meta property="article:published_time" content="2019-03-31T11:01:18.000Z"><meta property="article:modified_time" content="2023-11-06T04:04:47.634Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://veiasai.github.io/2019/03/31/cpp%E4%B8%AD%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%BB%88%E6%AD%A2%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%A8%8B%E5%BA%8F/"><link rel="prev" title="How to limit bandwidth in Swarm overlay network" href="http://veiasai.github.io/2019/04/11/How-to-limit-bandwidth-in-Swarm-overlay-network/"><link rel="next" title="《Exceptional C++》笔记" href="http://veiasai.github.io/2019/03/28/%E3%80%8AExceptional-C-%E3%80%8B%E7%AC%94%E8%AE%B0/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script><script src="https://cdn.jsdelivr.net/npm/blueimp-md5/js/md5.min.js"></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"cookieDomain":"https://xxx/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  bookmark: {
+    message_prev: 'Press',
+    message_next: 'to bookmark this page'
+  },
+  runtime_unit: 'days',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: {"text":"I,LOVE,YOU","fontSize":"15px"},
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="Tornado" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">69</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">67</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">10</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%88%E6%AD%A2%E4%BF%A1%E5%8F%B7"><span class="toc-number">2.</span> <span class="toc-text">终止信号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E4%B8%80"><span class="toc-number">3.</span> <span class="toc-text">方案一</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E4%BA%8C"><span class="toc-number">4.</span> <span class="toc-text">方案二</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E4%B8%89"><span class="toc-number">5.</span> <span class="toc-text">方案三</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B9%E6%A1%88%E5%9B%9B"><span class="toc-number">6.</span> <span class="toc-text">方案四</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E8%AE%B0"><span class="toc-number">7.</span> <span class="toc-text">后记</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%99%84%E5%BD%95"><span class="toc-number">8.</span> <span class="toc-text">附录</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Pthreads-Cancel-Coint"><span class="toc-number">8.1.</span> <span class="toc-text">Pthreads Cancel Coint</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://i.loli.net/2020/05/01/IuWi8QbHvzjlOPw.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">Tornado</a></span><span class="pull_right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">cpp中如何优雅终止多线程程序</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="Created 2019-03-31 11:01:18"><i class="fa fa-calendar" aria-hidden="true"></i> Created 2019-03-31</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="Updated 2023-11-06 04:04:47"><i class="fa fa-history" aria-hidden="true"></i> Updated 2023-11-06</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Note/">Note</a></span></div><div class="meta-secondline"> </div><div class="meta-thirdline"><span class="post-meta-pv-cv"><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>Post View:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>原以为学了很多东西，停止一个多线程程序很容易，信号什么的一顿上，仔细思考发现并不简单。</p>
+<a id="more"></a>
+
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><ul>
+<li>现在多线程应用非常常见，功能强大的同时也有很多新问题，为了便于描述，虚构一个具体场景。</li>
+<li>假设有这样一个程序：<ul>
+<li>一个main thread，三个worker thread。</li>
+<li>main thread负责初始化配置，创建其他线程，并join等待。</li>
+<li>worker thread中各自有自己的运行逻辑，以轮询的方式长期运行。</li>
+</ul>
+</li>
+</ul>
+<h2 id="终止信号"><a href="#终止信号" class="headerlink" title="终止信号"></a>终止信号</h2><ul>
+<li>在main thread中，程序初始化时，注册signal handler，即可捕捉到SIGTERM。</li>
+<li>但需要明确一点，信号处理函数中，只能调用可重入函数，自身修改其他状态时也要格外小心。</li>
+</ul>
+<h2 id="方案一"><a href="#方案一" class="headerlink" title="方案一"></a>方案一</h2><ul>
+<li>在signal handler中，flush进程所有状态，最后调用exit退出。</li>
+<li>优点<ul>
+<li>基本没什么优点，除了想法简单。</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>需要记住所有线程的工作逻辑，知道如何flush。</li>
+<li>flush是否可重入？是否有race condition。这一点上无法预测，很多逻辑是调用的第三方库。</li>
+</ul>
+</li>
+</ul>
+<h2 id="方案二"><a href="#方案二" class="headerlink" title="方案二"></a>方案二</h2><ul>
+<li>signal handler调用pthread_cancel。</li>
+<li>优点<ul>
+<li>将exit过程交给目标线程处理。</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>引入了pthread库（这可能也不算缺点，但总的来说依赖越单一、越少，也意味着越简洁安全）</li>
+<li>目标线程仍然只能使用pthread_cleanup_push来预置handler。</li>
+<li>cancelpoint的设定较为复杂，它大量考虑了程序状态，但真正重要的是业务逻辑状态是否处于可以cancel的位置。</li>
+</ul>
+</li>
+</ul>
+<h2 id="方案三"><a href="#方案三" class="headerlink" title="方案三"></a>方案三</h2><ul>
+<li>signal handler修改各个线程可见的状态量，比如一个全局数组。</li>
+<li>优点<ul>
+<li>exit过程由目标线程处理。</li>
+<li>语义更强大，数组中的变量可以表示更多状态，不仅仅是cancel。</li>
+<li>cancelpoint交给了线程自己处理，在可以退出的位置，判断状态量。</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>全局变量就是有害的（迫真。</li>
+<li>可扩展性虽然有，但编码难度很高。如果要增加一种状态，比如暂停线程，那么所有工作线程的代码都需要改动，或者就得容忍，不是所有线程都支持所有状态。不支持所有状态是正常的，但全局数组的设计，让程序员难以控制这个缺陷，留下了容易犯错的可能性。</li>
+</ul>
+</li>
+</ul>
+<h2 id="方案四"><a href="#方案四" class="headerlink" title="方案四"></a>方案四</h2><ul>
+<li>std::thread以某个对象的方法为主体，那么，让该对象提供run方法的同时，也提供一个cancel方法。内部两个函数的交互则任由线程自己实现，可以是对象私有变量，也可以是thread_local。run方法在固定的点去检查状态。</li>
+<li>优点<ul>
+<li>stop由目标线程处理。</li>
+<li>支持多种状态，比如stop，restart等。</li>
+<li>支持不同线程不同实现，某些线程可能不支持stop，这无所谓，直接从类的接口上就能看出。也可以用一个父类，强制子类都实现这些方法。这取决于业务逻辑和代码组织的需求。</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>main thread需要保留其他线程的对象。</li>
+<li>状态变更函数都得是可重入函数（只写不读，或者直接取消多次进入即可，感觉问题也不大）。</li>
+</ul>
+</li>
+</ul>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><ul>
+<li>起初想了很多关于Exception的问题，在信号处理函数中写代码需要非常谨慎，怕引入并发错误。</li>
+<li>最后的几个实现写起来，发现要么是我处理不掉的问题，要么就简单到不会出exception。</li>
+<li>RAII可能还是更多用在资源安全上，线程状态维护是另一个问题了。</li>
+</ul>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><h3 id="Pthreads-Cancel-Coint"><a href="#Pthreads-Cancel-Coint" class="headerlink" title="Pthreads Cancel Coint"></a>Pthreads Cancel Coint</h3><p>pthreads标准指定了几个取消点，其中包括：</p>
+<ul>
+<li>通过pthread_testcancel调用以编程方式建立线程取消点。</li>
+<li>线程等待pthread_cond_wait或pthread_cond_timewait()中的特定条件。</li>
+<li>被sigwait(2)阻塞的函数。</li>
+<li>一些标准的库调用。通常，这些调用包括线程可基于阻塞的函数。</li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Veiasai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://veiasai.github.io/2019/03/31/cpp%E4%B8%AD%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%BB%88%E6%AD%A2%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%A8%8B%E5%BA%8F/">http://veiasai.github.io/2019/03/31/cpp%E4%B8%AD%E5%A6%82%E4%BD%95%E4%BC%98%E9%9B%85%E7%BB%88%E6%AD%A2%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%A8%8B%E5%BA%8F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CPP/">CPP</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2019/04/11/How-to-limit-bandwidth-in-Swarm-overlay-network/"><img class="prev_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">How to limit bandwidth in Swarm overlay network</div></div></a></div><div class="next-post pull_right"><a href="/2019/03/28/%E3%80%8AExceptional-C-%E3%80%8B%E7%AC%94%E8%AE%B0/"><img class="next_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">《Exceptional C++》笔记</div></div></a></div></nav><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> Comment</span></div><div id="gitalk-container"></div><script>var gitalk = new Gitalk({
+  clientID: '8618b099f7db9d797dc7',
+  clientSecret: '4edc8a4fb8b173079b5a617fb9f23120a306e1b2',
+  repo: 'Veiasai.github.io',
+  owner: 'Veiasai',
+  admin: ['Veiasai'],
+  id: md5(decodeURI(location.pathname)),
+  language: 'en',
+  perPage: 10,
+  distractionFreeMode: false,
+  pagerDirection: 'last',
+  createIssueManually: false,
+  updateCountCallback: commentCount
+})
+gitalk.render('gitalk-container')
+
+function commentCount(n){
+  try {
+    document.getElementsByClassName('gitalk-comment-count')[0].innerHTML= n
+  } catch (e) {
+    return false
+  }
+}</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Veiasai</div><div class="framework-info"><span>Driven </span><a href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme </span><a href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="Read Mode"></i><i class="fa fa-plus" id="font_plus" title="Increase font size"></i><i class="fa fa-minus" id="font_minus" title="Decrease font size"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="Traditional Chinese and Simplified Chinese Conversion" target="_self">繁</a><i class="darkmode fa fa-moon-o" id="darkmode" title="Dark Mode"></i></div><div id="rightside-config-show"><div id="rightside_config" title="Setting"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="Scroll to comment"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="Table of Contents" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="Back to top" aria-hidden="true"></i></div></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/third-party/ClickShowText.js"></script></body></html>

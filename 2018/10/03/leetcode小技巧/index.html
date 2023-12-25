@@ -1,0 +1,206 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>leetcode小技巧 | Tornado</title><meta name="description" content="在做专项训练和一些随机题的时候，看别人的代码学到的一些编程小技巧。    读取字符串，同时需要分辨其中字母和数字。  自己做转换的速度快，用上switch就比if-else更快。 相比stringstream，少了错误处理，犯不上检查failbit，也不用clear了，速度明显提升，代码可读性也很好。12345678910111213141516171819switch (s[i]) &#123;"><meta name="keywords" content="C++,alogrithm"><meta name="author" content="Veiasai"><meta name="copyright" content="Veiasai"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="leetcode小技巧"><meta name="twitter:description" content="在做专项训练和一些随机题的时候，看别人的代码学到的一些编程小技巧。    读取字符串，同时需要分辨其中字母和数字。  自己做转换的速度快，用上switch就比if-else更快。 相比stringstream，少了错误处理，犯不上检查failbit，也不用clear了，速度明显提升，代码可读性也很好。12345678910111213141516171819switch (s[i]) &#123;"><meta name="twitter:image" content="http://veiasai.github.io/img/avatar.png"><meta property="og:type" content="article"><meta property="og:title" content="leetcode小技巧"><meta property="og:url" content="http://veiasai.github.io/2018/10/03/leetcode%E5%B0%8F%E6%8A%80%E5%B7%A7/"><meta property="og:site_name" content="Tornado"><meta property="og:description" content="在做专项训练和一些随机题的时候，看别人的代码学到的一些编程小技巧。    读取字符串，同时需要分辨其中字母和数字。  自己做转换的速度快，用上switch就比if-else更快。 相比stringstream，少了错误处理，犯不上检查failbit，也不用clear了，速度明显提升，代码可读性也很好。12345678910111213141516171819switch (s[i]) &#123;"><meta property="og:image" content="http://veiasai.github.io/img/avatar.png"><meta property="article:published_time" content="2018-10-03T10:14:47.000Z"><meta property="article:modified_time" content="2023-11-06T04:04:47.638Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://veiasai.github.io/2018/10/03/leetcode%E5%B0%8F%E6%8A%80%E5%B7%A7/"><link rel="prev" title="《虚拟智慧》阅读笔记" href="http://veiasai.github.io/2018/10/12/%E3%80%8A%E8%99%9A%E6%8B%9F%E6%99%BA%E6%85%A7%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/"><link rel="next" title="leetcode高级算法" href="http://veiasai.github.io/2018/09/18/leetcode%E9%AB%98%E7%BA%A7%E7%AE%97%E6%B3%95/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script><script src="https://cdn.jsdelivr.net/npm/blueimp-md5/js/md5.min.js"></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"cookieDomain":"https://xxx/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  bookmark: {
+    message_prev: 'Press',
+    message_next: 'to bookmark this page'
+  },
+  runtime_unit: 'days',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: {"text":"I,LOVE,YOU","fontSize":"15px"},
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: false  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="Tornado" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">69</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">67</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">10</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://i.loli.net/2020/05/01/IuWi8QbHvzjlOPw.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">Tornado</a></span><span class="pull_right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">leetcode小技巧</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="Created 2018-10-03 10:14:47"><i class="fa fa-calendar" aria-hidden="true"></i> Created 2018-10-03</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="Updated 2023-11-06 04:04:47"><i class="fa fa-history" aria-hidden="true"></i> Updated 2023-11-06</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/leetcode/">leetcode</a></span></div><div class="meta-secondline"> </div><div class="meta-thirdline"><span class="post-meta-pv-cv"><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>Post View:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>在做专项训练和一些随机题的时候，看别人的代码学到的一些编程小技巧。</p>
+<a id="more"></a>
+
+<ol>
+<li><p>读取字符串，同时需要分辨其中字母和数字。</p>
+<ul>
+<li>自己做转换的速度快，用上switch就比if-else更快。</li>
+<li>相比stringstream，少了错误处理，犯不上检查failbit，也不用clear了，速度明显提升，代码可读性也很好。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> (s[i]) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'0'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'1'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'2'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'3'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'4'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'5'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'6'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'7'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'8'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'9'</span>: &#123;</span><br><span class="line">                tmp_num += s[i];</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            case 'other': &#123;</span><br><span class="line">                <span class="keyword">int</span> t = stoi(tmp_num);</span><br><span class="line">                <span class="comment">// do xxx</span></span><br><span class="line">            &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>加减法变换，避免溢出</p>
+<ul>
+<li>后来想这可能是二分搜索出错最多的地方了。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> mid = (left + right) / <span class="number">2</span>;</span><br><span class="line"><span class="keyword">int</span> mid_right = left + (right - left) / <span class="number">2</span>;</span><br></pre></td></tr></table></figure></li>
+<li>一般来说，索引都是正数，而且左右都没溢出，求中间数不应该溢出的。</li>
+<li>平方数的判断，乘法变除法，在做乘法检验。</li>
+<li>当然比较暴力的办法是换更大的类型。</li>
+</ul>
+</li>
+<li><p>queue与BFS</p>
+<ul>
+<li>我特别喜欢用stl中的swap方法去做层级的变换。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> cnt=<span class="number">0</span>;</span><br><span class="line"><span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt; q1, q2;</span><br><span class="line"><span class="keyword">while</span>(!q1.empty())&#123;</span><br><span class="line">    <span class="keyword">while</span>(!q1.empty())&#123;</span><br><span class="line">        <span class="comment">// do xx; q2.push(next);</span></span><br><span class="line">    &#125;</span><br><span class="line">    cnt++;</span><br><span class="line">    q1.swap(q2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>当然swap还有一些其他的妙用，下次碰上了再写。</li>
+<li>但是BFS还有一个办法，我觉得这个更妙了。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> cnt=<span class="number">0</span>;</span><br><span class="line"><span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt; q;</span><br><span class="line"><span class="keyword">while</span>(!q.empty())&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> n=q.size();n&gt;<span class="number">0</span>;n--)&#123;</span><br><span class="line">        <span class="comment">// do xx; q.push(next);</span></span><br><span class="line">    &#125;</span><br><span class="line">    cnt++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>保证某个值为小的一个</p>
+<ul>
+<li>这应用场景很多，像stl容器有swap方法，其他的一些类型也可以交换，然后就能保证两个值的顺序，后面的代码就能做统一处理。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> n = nums1.size();</span><br><span class="line"><span class="keyword">int</span> m = nums2.size();</span><br><span class="line"><span class="keyword">if</span>(n &gt; m)   <span class="comment">//保证数组1一定最短</span></span><br><span class="line">    <span class="keyword">return</span> func(nums2,nums1);</span><br></pre></td></tr></table></figure></li>
+<li>像上面这种递归调用一次自己也是一种不错的方法，尤其适用于，传入参数是引用时，这时不方便做swap，复制又太耗费时间。</li>
+</ul>
+</li>
+<li><p>数组越界的处理</p>
+<ul>
+<li>一般来说这种办法适用于有序数组，两端的值用INT_MAX和INT_MIN代替。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">L1 = (c1 == <span class="number">0</span>)?INT_MIN:nums1[(c1<span class="number">-1</span>)/<span class="number">2</span>];   <span class="comment">//map to original element</span></span><br><span class="line">R1 = (c1 == <span class="number">2</span>*n)?INT_MAX:nums1[c1/<span class="number">2</span>];</span><br><span class="line">L2 = (c2 == <span class="number">0</span>)?INT_MIN:nums2[(c2<span class="number">-1</span>)/<span class="number">2</span>];</span><br><span class="line">R2 = (c2 == <span class="number">2</span>*m)?INT_MAX:nums2[c2/<span class="number">2</span>];</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>多值visit表示</p>
+<ul>
+<li>在做遍历，DFS，BFS等算法时，经常需要mark经过的点，还有一种有意思的叫法是color。</li>
+<li>有时候发现不一定只有两种状态，可以设定更多的值表明不同的状态，比如dfs拓扑排序，一个点出发不一定能经过整个图，所以会尝试从任何一个点出发，这个时候要区分成环和访问过，就会做三种状态“未访问”，“访问过”，“本次搜索访问过”，以便及时退出算法。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (visit[n] == <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">visit[n] = <span class="number">-1</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">auto</span> c : v[n])&#123;</span><br><span class="line">    <span class="keyword">if</span> (visit[c] == <span class="number">-1</span> || (visit[c] == <span class="number">0</span> &amp;&amp; !dfs(c, v, visit, topo)))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line">visit[n] = <span class="number">1</span>;</span><br><span class="line">topo.push_back(n);</span><br><span class="line"><span class="keyword">return</span> <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>指针的指针</p>
+<ul>
+<li>在删除链表中元素的时候，往往要记录两个指针，因为单链表不能往前。而这样做在删除头的时候，又引入了问题。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (head &amp;&amp; head-&gt;val == val)&#123;</span><br><span class="line">    head = head-&gt;next;</span><br><span class="line">&#125;</span><br><span class="line">ListNode* temp = head;</span><br><span class="line"><span class="keyword">while</span> (temp &amp;&amp; temp-&gt;next)&#123;</span><br><span class="line">    <span class="keyword">if</span> (temp-&gt;next-&gt;val == val)</span><br><span class="line">        temp-&gt;next = temp-&gt;next-&gt;next;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        temp = temp-&gt;next;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> head;</span><br></pre></td></tr></table></figure></li>
+<li>当然对于这个例子，虚拟头指针也是不错的办法。</li>
+<li>但取地址来做，代码更简洁了。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ListNode ** temp = &amp;head;</span><br><span class="line"><span class="keyword">while</span>(*temp)&#123;</span><br><span class="line">    <span class="keyword">if</span> ((*temp)-&gt;val == val)</span><br><span class="line">        *temp = (*temp)-&gt;next;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        temp = &amp;(*temp)-&gt;next;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> head;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>树结构滑动窗口</p>
+<ul>
+<li>滑动窗口比较直观的是数组，用树结构，插入和删除的复杂度提升，但是数据有序。</li>
+<li>有序之后查找和比较时间较少，而且可以利用二分库函数lower_bound、upper_bound。</li>
+<li>有一个需要注意的特性是出现重复元素，删除将会变得复杂，一般还是应用在不会重复，或者重复时算法就会结束。</li>
+</ul>
+</li>
+<li><p>不重复的n数之和</p>
+<ul>
+<li>做n数之和的套路总是先排序，然后从两端遍历。依次去掉几个数就可以归纳到两数之和。</li>
+<li>当要求找出来的解答不重复，还需要一点小技巧。<ul>
+<li>用<code>set&lt;vector&lt;int&gt;&gt;</code>，当vector中是基本类型（其实我觉得只要是有==运算的类型都可以），vector也可以进行比较。</li>
+<li>循环中增加条件。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span> &#123; left++; &#125; <span class="keyword">while</span> (nums[left] == nums[left - <span class="number">1</span>] &amp;&amp; left &lt; right);</span><br><span class="line"><span class="keyword">do</span> &#123; right--; &#125; <span class="keyword">while</span> (nums[right] == nums[right + <span class="number">1</span>] &amp;&amp; left &lt; right);</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>2的幂</p>
+<ul>
+<li>其实就是二进制表示，有且只有一个1的数。</li>
+<li><code>n &amp; (n-1) == 0</code></li>
+</ul>
+</li>
+<li><p>格雷编码</p>
+<ul>
+<li>相邻数只有一位不同（二进制）。</li>
+<li>话不多说，直接奇技淫巧。<ul>
+<li>第一种<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; gray;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;(<span class="number">1</span>&lt;&lt;n); i++)</span><br><span class="line">    gray.push_back(i^(i&gt;&gt;<span class="number">1</span>));</span><br><span class="line"><span class="keyword">return</span> gray;</span><br></pre></td></tr></table></figure></li>
+<li>第二种<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; v = &#123;<span class="number">0</span>&#125;;</span><br><span class="line"><span class="keyword">while</span>(n--)&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=v.size()<span class="number">-1</span>;i&gt;=<span class="number">0</span>;i--)&#123;</span><br><span class="line">        v[i] &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">        v.push_back(v[i] + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> v;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>循环体中的条件语句</p>
+<ul>
+<li>如果只嵌套一层条件语句，可读性还算可以。  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=len<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">    <span class="keyword">if</span> (nums[i] &gt; nums[i<span class="number">-1</span>])&#123;</span><br><span class="line">        <span class="comment">// do xxx</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>像字典序算法，需要循环两次。我觉得这时候可读性就不太好了。  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=len<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--)&#123;</span><br><span class="line">    <span class="keyword">if</span> (nums[i] &gt; nums[i<span class="number">-1</span>])&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j=len<span class="number">-1</span>;j&gt;=i;j--)&#123;</span><br><span class="line">            <span class="keyword">if</span> (nums[j] &gt; nums[i<span class="number">-1</span>])&#123;</span><br><span class="line">                <span class="comment">// do xxx</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// do xxx</span></span><br></pre></td></tr></table></figure></li>
+<li>这时候一手逆向思维，条件反转，这个太显功力了。  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> i = len - <span class="number">1</span>;</span><br><span class="line"><span class="keyword">while</span> (i &gt; <span class="number">0</span> &amp;&amp; nums[i] &lt;= nums[i<span class="number">-1</span>]) &#123;</span><br><span class="line">    i--;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (i &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">int</span> j = len - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (j &gt;= i &amp;&amp; nums[j] &lt;= nums[i<span class="number">-1</span>]) &#123;</span><br><span class="line">        j--;</span><br><span class="line">    &#125;</span><br><span class="line">    swap(nums, i - <span class="number">1</span>, j);</span><br><span class="line">&#125;</span><br><span class="line">reverse(nums, i);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ol>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Veiasai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://veiasai.github.io/2018/10/03/leetcode%E5%B0%8F%E6%8A%80%E5%B7%A7/">http://veiasai.github.io/2018/10/03/leetcode%E5%B0%8F%E6%8A%80%E5%B7%A7/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/C/">C++</a><a class="post-meta__tags" href="/tags/alogrithm/">alogrithm</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2018/10/12/%E3%80%8A%E8%99%9A%E6%8B%9F%E6%99%BA%E6%85%A7%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/"><img class="prev_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">《虚拟智慧》阅读笔记</div></div></a></div><div class="next-post pull_right"><a href="/2018/09/18/leetcode%E9%AB%98%E7%BA%A7%E7%AE%97%E6%B3%95/"><img class="next_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">leetcode高级算法</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> Recommend</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2018/08/28/leetcode中级算法/" title="leetcode中级算法"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2018-08-28</div><div class="relatedPosts_title">leetcode中级算法</div></div></a></div><div class="relatedPosts_item"><a href="/2018/07/07/leetcode初级算法/" title="leetcode初级算法"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2018-07-07</div><div class="relatedPosts_title">leetcode初级算法</div></div></a></div><div class="relatedPosts_item"><a href="/2018/09/18/leetcode高级算法/" title="leetcode高级算法"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2018-09-18</div><div class="relatedPosts_title">leetcode高级算法</div></div></a></div><div class="relatedPosts_item"><a href="/2019/11/20/boost学习笔记/" title="boost学习笔记"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-11-20</div><div class="relatedPosts_title">boost学习笔记</div></div></a></div><div class="relatedPosts_item"><a href="/2020/06/13/the-design-and-evolution-of-cpp/" title="the-design-and-evolution-of-cpp"><img class="relatedPosts_cover" src="https://veiablog.oss-cn-shanghai.aliyuncs.com/dawid-zawila-TN8inGqMH7k-unsplash.jpg?x-oss-process=style/compress"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-06-13</div><div class="relatedPosts_title">the-design-and-evolution-of-cpp</div></div></a></div><div class="relatedPosts_item"><a href="/2019/02/25/《Effective-C-》笔记/" title="《Effective C++》笔记"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-02-25</div><div class="relatedPosts_title">《Effective C++》笔记</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> Comment</span></div><div id="gitalk-container"></div><script>var gitalk = new Gitalk({
+  clientID: '8618b099f7db9d797dc7',
+  clientSecret: '4edc8a4fb8b173079b5a617fb9f23120a306e1b2',
+  repo: 'Veiasai.github.io',
+  owner: 'Veiasai',
+  admin: ['Veiasai'],
+  id: md5(decodeURI(location.pathname)),
+  language: 'en',
+  perPage: 10,
+  distractionFreeMode: false,
+  pagerDirection: 'last',
+  createIssueManually: false,
+  updateCountCallback: commentCount
+})
+gitalk.render('gitalk-container')
+
+function commentCount(n){
+  try {
+    document.getElementsByClassName('gitalk-comment-count')[0].innerHTML= n
+  } catch (e) {
+    return false
+  }
+}</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Veiasai</div><div class="framework-info"><span>Driven </span><a href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme </span><a href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="Read Mode"></i><i class="fa fa-plus" id="font_plus" title="Increase font size"></i><i class="fa fa-minus" id="font_minus" title="Decrease font size"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="Traditional Chinese and Simplified Chinese Conversion" target="_self">繁</a><i class="darkmode fa fa-moon-o" id="darkmode" title="Dark Mode"></i></div><div id="rightside-config-show"><div id="rightside_config" title="Setting"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="Scroll to comment"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-arrow-up" id="go-up" title="Back to top" aria-hidden="true"></i></div></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/third-party/ClickShowText.js"></script></body></html>

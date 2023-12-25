@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>《现代编译原理——C语言描述》阅读笔记 | Tornado</title><meta name="description" content="忍痛选修编译原理，大名鼎鼎的虎书。   Introduction Lexical AnalysisRegular Expression 正则表达式可以简明扼要的描述单词（Symbol），一般而言，常用的几种语法有：+*.|[]{}。 在词法分析这里，正则只是用来匹配一个字符串，不强调它提取子串的功能，实际上正则引擎还支持更多的功能和操作，比如定位符，分组捕获，反向引用。  Finite Autom"><meta name="keywords" content="编译"><meta name="author" content="Veiasai"><meta name="copyright" content="Veiasai"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="《现代编译原理——C语言描述》阅读笔记"><meta name="twitter:description" content="忍痛选修编译原理，大名鼎鼎的虎书。   Introduction Lexical AnalysisRegular Expression 正则表达式可以简明扼要的描述单词（Symbol），一般而言，常用的几种语法有：+*.|[]{}。 在词法分析这里，正则只是用来匹配一个字符串，不强调它提取子串的功能，实际上正则引擎还支持更多的功能和操作，比如定位符，分组捕获，反向引用。  Finite Autom"><meta name="twitter:image" content="http://veiasai.github.io/img/avatar.png"><meta property="og:type" content="article"><meta property="og:title" content="《现代编译原理——C语言描述》阅读笔记"><meta property="og:url" content="http://veiasai.github.io/2018/10/12/%E3%80%8A%E7%8E%B0%E4%BB%A3%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E2%80%94%E2%80%94C%E8%AF%AD%E8%A8%80%E6%8F%8F%E8%BF%B0%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/"><meta property="og:site_name" content="Tornado"><meta property="og:description" content="忍痛选修编译原理，大名鼎鼎的虎书。   Introduction Lexical AnalysisRegular Expression 正则表达式可以简明扼要的描述单词（Symbol），一般而言，常用的几种语法有：+*.|[]{}。 在词法分析这里，正则只是用来匹配一个字符串，不强调它提取子串的功能，实际上正则引擎还支持更多的功能和操作，比如定位符，分组捕获，反向引用。  Finite Autom"><meta property="og:image" content="http://veiasai.github.io/img/avatar.png"><meta property="article:published_time" content="2018-10-12T15:23:53.000Z"><meta property="article:modified_time" content="2023-11-06T04:04:47.650Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://veiasai.github.io/2018/10/12/%E3%80%8A%E7%8E%B0%E4%BB%A3%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E2%80%94%E2%80%94C%E8%AF%AD%E8%A8%80%E6%8F%8F%E8%BF%B0%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/"><link rel="prev" title="kafka2.0集群搭建与高压测试" href="http://veiasai.github.io/2018/10/28/kafka2-0%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%AB%98%E5%8E%8B%E6%B5%8B%E8%AF%95/"><link rel="next" title="《虚拟智慧》阅读笔记" href="http://veiasai.github.io/2018/10/12/%E3%80%8A%E8%99%9A%E6%8B%9F%E6%99%BA%E6%85%A7%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script><script src="https://cdn.jsdelivr.net/npm/blueimp-md5/js/md5.min.js"></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"cookieDomain":"https://xxx/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  bookmark: {
+    message_prev: 'Press',
+    message_next: 'to bookmark this page'
+  },
+  runtime_unit: 'days',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: {"text":"I,LOVE,YOU","fontSize":"15px"},
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="Tornado" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">69</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">67</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">10</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Introduction"><span class="toc-number">1.</span> <span class="toc-text">Introduction</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lexical-Analysis"><span class="toc-number">2.</span> <span class="toc-text">Lexical Analysis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Regular-Expression"><span class="toc-number">2.1.</span> <span class="toc-text">Regular Expression</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Finite-Automaton"><span class="toc-number">2.2.</span> <span class="toc-text">Finite Automaton</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parsing"><span class="toc-number">3.</span> <span class="toc-text">Parsing</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Context-Free-Grammars"><span class="toc-number">3.1.</span> <span class="toc-text">Context-Free Grammars</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Predicting-Parsing-LL-LR"><span class="toc-number">3.2.</span> <span class="toc-text">Predicting Parsing \ LL \ LR</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Abstract-Syntax"><span class="toc-number">4.</span> <span class="toc-text">Abstract Syntax</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Semantic-Analysis"><span class="toc-number">5.</span> <span class="toc-text">Semantic Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Activity-Record"><span class="toc-number">6.</span> <span class="toc-text">Activity Record</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B5%8C%E5%A5%97%E5%87%BD%E6%95%B0%EF%BC%88%E9%97%AD%E5%8C%85%EF%BC%89"><span class="toc-number">6.1.</span> <span class="toc-text">嵌套函数（闭包）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Frame"><span class="toc-number">6.2.</span> <span class="toc-text">Frame</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Translation-to-Intermediate-Code"><span class="toc-number">7.</span> <span class="toc-text">Translation to Intermediate Code</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Cx"><span class="toc-number">7.1.</span> <span class="toc-text">Cx</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Basic-Blocks-and-Traces"><span class="toc-number">8.</span> <span class="toc-text">Basic Blocks and Traces</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#canon"><span class="toc-number">8.1.</span> <span class="toc-text">canon</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ESEQ"><span class="toc-number">8.1.1.</span> <span class="toc-text">ESEQ</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CALL"><span class="toc-number">8.1.2.</span> <span class="toc-text">CALL</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#linearize"><span class="toc-number">8.1.3.</span> <span class="toc-text">linearize</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#basic-block"><span class="toc-number">8.2.</span> <span class="toc-text">basic block</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#trace"><span class="toc-number">8.3.</span> <span class="toc-text">trace</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Instruction-Selection"><span class="toc-number">9.</span> <span class="toc-text">Instruction Selection</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Maximal-Munch"><span class="toc-number">9.1.</span> <span class="toc-text">Maximal Munch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Abstract-Assembly-Language-Instructions"><span class="toc-number">9.2.</span> <span class="toc-text">Abstract Assembly-Language Instructions</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Liveness-Analysis"><span class="toc-number">10.</span> <span class="toc-text">Liveness Analysis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Register-Allocate"><span class="toc-number">11.</span> <span class="toc-text">Register Allocate</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BE%E7%9D%80%E8%89%B2"><span class="toc-number">11.1.</span> <span class="toc-text">图着色</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%AF%E5%8F%91%E5%BC%8F%E7%AE%97%E6%B3%95-K-%E9%A2%9C%E8%89%B2%E6%95%B0%E9%87%8F"><span class="toc-number">11.1.1.</span> <span class="toc-text">启发式算法(K&#x3D;颜色数量)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%88%E5%B9%B6%E8%8A%82%E7%82%B9"><span class="toc-number">11.1.2.</span> <span class="toc-text">合并节点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E7%AD%96%E7%95%A5"><span class="toc-number">11.1.3.</span> <span class="toc-text">实现策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%84%E7%9D%80%E8%89%B2%E8%8A%82%E7%82%B9"><span class="toc-number">11.1.4.</span> <span class="toc-text">预着色节点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#x86-64%E7%9A%84%E7%89%B9%E7%82%B9%E6%80%9D%E8%80%83"><span class="toc-number">11.2.</span> <span class="toc-text">x86-64的特点思考</span></a></li></ol></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://i.loli.net/2020/05/01/IuWi8QbHvzjlOPw.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">Tornado</a></span><span class="pull_right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">《现代编译原理——C语言描述》阅读笔记</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="Created 2018-10-12 15:23:53"><i class="fa fa-calendar" aria-hidden="true"></i> Created 2018-10-12</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="Updated 2023-11-06 04:04:47"><i class="fa fa-history" aria-hidden="true"></i> Updated 2023-11-06</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Note/">Note</a></span></div><div class="meta-secondline"> </div><div class="meta-thirdline"><span class="post-meta-pv-cv"><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>Post View:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>忍痛选修编译原理，大名鼎鼎的虎书。</p>
+<a id="more"></a>
+
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p><img src="/2018/10/12/%E3%80%8A%E7%8E%B0%E4%BB%A3%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E2%80%94%E2%80%94C%E8%AF%AD%E8%A8%80%E6%8F%8F%E8%BF%B0%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/1-1.png" alt="图片加载失败"></p>
+<h2 id="Lexical-Analysis"><a href="#Lexical-Analysis" class="headerlink" title="Lexical Analysis"></a>Lexical Analysis</h2><h3 id="Regular-Expression"><a href="#Regular-Expression" class="headerlink" title="Regular Expression"></a>Regular Expression</h3><ul>
+<li>正则表达式可以简明扼要的描述单词（Symbol），一般而言，常用的几种语法有：+*.|[]{}。</li>
+<li>在词法分析这里，正则只是用来匹配一个字符串，不强调它提取子串的功能，实际上正则引擎还支持更多的功能和操作，比如定位符，分组捕获，反向引用。</li>
+</ul>
+<h3 id="Finite-Automaton"><a href="#Finite-Automaton" class="headerlink" title="Finite Automaton"></a>Finite Automaton</h3><ul>
+<li>一个正则表达式很容易转换为非确定有限自动机（NFA）。</li>
+<li>编程实现NFA不太方便，直觉上就像DFS、回溯算法等，转换成DFA会更方便程序执行。</li>
+<li>NFA转换DFA就是将可能走到的所有结果合并成一个状态，然后将所有可能出口作为新状态的出口。（按图来说的话，就是e线条连接的点当作一个点看待。）</li>
+</ul>
+<h2 id="Parsing"><a href="#Parsing" class="headerlink" title="Parsing"></a>Parsing</h2><h3 id="Context-Free-Grammars"><a href="#Context-Free-Grammars" class="headerlink" title="Context-Free Grammars"></a>Context-Free Grammars</h3><ul>
+<li>上下文无关文法，用以描述一个无限的状态。</li>
+<li>这里的无限指的是递归，而且是两个表达式相互包含的递归，比如sum = expr + expr, expr = sum | digits, 这种形式的正则表达式不合法，它无法被转换为DFA。</li>
+<li>上下文无关文法更强大，能够表示这种递归概念，至于如何解析并未包括。</li>
+</ul>
+<h3 id="Predicting-Parsing-LL-LR"><a href="#Predicting-Parsing-LL-LR" class="headerlink" title="Predicting Parsing \ LL \ LR"></a>Predicting Parsing \ LL \ LR</h3><ul>
+<li>上下文无关文法所描述的状态是有二义性的，也就是满足定义的语法树不唯一，这可能会产生错误，也可能不会。</li>
+<li>分析器需要选择下一步状态，预测分析就是猜测可能是什么，如果错了就回退，这个很暴力也很直接，就是速度太慢。</li>
+<li>LL(k)分析可以提前查看后面k个单词，再确认当前是什么状态。但对于if then else if then这种句子，k不够大的时候，LL也无法正确猜出。也就是说，LL只是多获取了固定信息，一旦预测所需信息超出这个范围，就无能为力。</li>
+<li>LR(k)分析会用栈存储遇到的单词，如果还不能判断状态就继续往下读取，直到可以确定。同样，在这时，对于if then，它也会有两种选择，即shift-reduce conflict。这种时候可以限定优先级或者直接指定应该采取的选择，最终达到正确需求就行。（yacc默认是shift）</li>
+</ul>
+<h2 id="Abstract-Syntax"><a href="#Abstract-Syntax" class="headerlink" title="Abstract Syntax"></a>Abstract Syntax</h2><ul>
+<li>使用yacc生成抽象树。</li>
+<li>这一章的数据结构和函数均为A开头。</li>
+</ul>
+<h2 id="Semantic-Analysis"><a href="#Semantic-Analysis" class="headerlink" title="Semantic Analysis"></a>Semantic Analysis</h2><ul>
+<li>语义分析，实际上这一章只是检测一些语义错误，比如类型检查，recursive dec。</li>
+<li>在后面会一边检查，一边将A-tree转换为IR-tree。</li>
+<li>类型检查基本就是扫描树，按照语法要求就好。</li>
+</ul>
+<h2 id="Activity-Record"><a href="#Activity-Record" class="headerlink" title="Activity Record"></a>Activity Record</h2><h3 id="嵌套函数（闭包）"><a href="#嵌套函数（闭包）" class="headerlink" title="嵌套函数（闭包）"></a>嵌套函数（闭包）</h3><ul>
+<li>书中给出三种方法：static link, display, lambda lifting。</li>
+<li>static link: 简单说就是做到一件事情，每次调用函数g的时候，找到g的上一级函数f（也就是函数g是在函数f内声明的），将f的frame pointer传递给g作为static link。</li>
+<li>找到g的上一级，这个事情在编译时可以分析得到。知道了函数f后，通过已有的static link一定能找到f，找不到一定是定义错误。</li>
+<li>有了这个static link，就可以访问外层的数据，不过一般是按顺序的，也就是会产生同名覆盖，最近优先。</li>
+</ul>
+<h3 id="Frame"><a href="#Frame" class="headerlink" title="Frame"></a>Frame</h3><ul>
+<li>传参限制：有一些参数总是放在寄存器里的，由于callee的使用需求，可能需要将部分参数转移到栈上。</li>
+</ul>
+<h2 id="Translation-to-Intermediate-Code"><a href="#Translation-to-Intermediate-Code" class="headerlink" title="Translation to Intermediate Code"></a>Translation to Intermediate Code</h2><ul>
+<li>Translate、Frame、Temp三个主要部分。</li>
+<li>IR-tree中就只有三种类型，Ex，Nx，Cx。<ul>
+<li>Ex代表“表达式”</li>
+<li>Nx代表“无结果语句”</li>
+<li>Cx代表“条件语句”</li>
+</ul>
+</li>
+</ul>
+<h3 id="Cx"><a href="#Cx" class="headerlink" title="Cx"></a>Cx</h3><ul>
+<li>Cx总是会有两个goto方向，有时候就会产生goto next line这种情形，有些多余。</li>
+</ul>
+<h2 id="Basic-Blocks-and-Traces"><a href="#Basic-Blocks-and-Traces" class="headerlink" title="Basic Blocks and Traces"></a>Basic Blocks and Traces</h2><ul>
+<li>现在，我们得到了IR-tree，但是它不便于分析，因为其中有ESEQ、CJUMP、CALL等语句，这会导致语句是有顺序的，不同的顺序结果不一样，从而限制了做优化的顺序。</li>
+<li>我们可以通过三个步骤将IR-tree转换为等价的、无上述mismatch的形式。<ul>
+<li>rewrite the tree into a list of canonical trees without SEQ or ESEQ nodes.</li>
+<li>group the list into a set of basci blocks(no jump or labels).</li>
+<li>order the blocks into a set of traces in which every CJUMP is immediately followed by its false label.</li>
+</ul>
+</li>
+</ul>
+<h3 id="canon"><a href="#canon" class="headerlink" title="canon"></a>canon</h3><h4 id="ESEQ"><a href="#ESEQ" class="headerlink" title="ESEQ"></a>ESEQ</h4><ul>
+<li><p>简单说就是把ESEQ往上提，考虑ESEQ(s, e)，移动s和e表达式的时候，只要s在e前面执行，并且最后返回值是e，ESEQ的语义就保留了。</p>
+</li>
+<li><p>但问题是，移动之后，s和e之间就有了其他的表达式，这些表达式的计算如果和s有关系，那么也会被s的副作用影响，而这是不对的。</p>
+</li>
+<li><p>我们并不总是能在编译阶段判断两个表达式之间是否有影响，这意思是说，像CONST的语句，肯定无影响，但MEM就无法判断是否是同一个数据，</p>
+</li>
+<li><p>所以，对于无影响的，我们就能比较简单的交换顺序，有影响的，我们可以通过多做一次MOVE来消除影响。</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BINOP(op, e1, ESEQ(s, e2))=&gt;ESEQ(MOVE(TEMP t, e1), ESEQ(s, BINOP(op, TEMP t, e2)));</span><br></pre></td></tr></table></figure>
+
+<p>也就是说，用中间变量保存可能受影响的变量。（我觉得这像负优化）</p>
+</li>
+<li><p>大致思想如上，具体算法有些复杂，不谈。</p>
+</li>
+</ul>
+<h4 id="CALL"><a href="#CALL" class="headerlink" title="CALL"></a>CALL</h4><ul>
+<li><p>a = f1(b) + f2(c)。</p>
+</li>
+<li><p>像这样的式子，树结构逻辑上也没问题，但机器实现就出问题，因为函数的返回值都是用同一个寄存器（rax）来存的，连续运算两个，有一个就丢失了，然后再op就没法做。</p>
+</li>
+<li><p>办法和之前一样，用一个临时变量保存一下。</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CALL(fun, args) =&gt; ESEQ(MOVE(TEMP t, CALL(fun, args)),TEMP t)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="linearize"><a href="#linearize" class="headerlink" title="linearize"></a>linearize</h4><ul>
+<li>总之，一顿操作之后，这个seq语句就全部是顶层，不会位于其他类型节点。</li>
+<li>再通过SEQ(SEQ(a,b),c) == SEQ(a,SEQ(b,c))，将seq转换为线性的一个列表。</li>
+</ul>
+<h3 id="basic-block"><a href="#basic-block" class="headerlink" title="basic block"></a>basic block</h3><ul>
+<li>入口为label，结束为jump的块。</li>
+<li>从头至尾扫描语句序列，发现label就开始一个块（并结束上一个块，加上jump到这个label），发现jump就结束一个块。</li>
+</ul>
+<h3 id="trace"><a href="#trace" class="headerlink" title="trace"></a>trace</h3><ul>
+<li>我现在才悟到，轨迹其实不是一条，它会有多条，也会有多个结果。因为很显然，有些块会有多个其他块跳过来，就像函数在不同地方被调用。（当然这里做tiger的时候，其实是面向函数体编程，也就是prog，所以这个例子不太恰当）</li>
+<li>最直接的办法就是，任意选一个未被任何轨迹包括的块作为新轨迹开始，然后沿着它的跳转到下一个块，不断的做，直到形成环结束。</li>
+<li>其实块变成汇编的时候，顺序是无所谓的，因为每个块都有label，重要的是，我们希望jump尽量少，同时，像循环这种，也尽量写成，预测跳转是循环体，能提高条件预测成功率。</li>
+<li>对块分析trace，有助于更好的排列块和做优化。</li>
+</ul>
+<h2 id="Instruction-Selection"><a href="#Instruction-Selection" class="headerlink" title="Instruction Selection"></a>Instruction Selection</h2><ul>
+<li>每一条指令并不一定对应一个节点，它更像是对应树的一小块结构。选择指令的结果也是多样的，就像积木，不同的内部结构，搭出同样的外形。最终的结果是，指令覆盖了整个树，并且不重叠。</li>
+<li>覆盖有两个概念，最优（optimum）覆盖和最佳（optimal）覆盖。<ul>
+<li>optimal是不存在可以相邻简化的部分。</li>
+<li>optimum是代价之和为最小。</li>
+</ul>
+</li>
+<li>optimum一定也是optimal。</li>
+</ul>
+<h3 id="Maximal-Munch"><a href="#Maximal-Munch" class="headerlink" title="Maximal Munch"></a>Maximal Munch</h3><ul>
+<li>the alogrithm for optimal tiling.</li>
+<li>从根节点开始，寻找合适的最大瓦片。</li>
+<li>对子树进行相同算法。</li>
+<li>本质上就是贪心算法，局部最优，全局不一定。</li>
+<li>顺势就会想到，最优可以用动态规划，自底向上。</li>
+</ul>
+<h3 id="Abstract-Assembly-Language-Instructions"><a href="#Abstract-Assembly-Language-Instructions" class="headerlink" title="Abstract Assembly-Language Instructions"></a>Abstract Assembly-Language Instructions</h3><ul>
+<li>在指令选择之前，不太好决定寄存器分配，tiger在指令选择后做寄存器分配。所以我们用了一个抽象指令结构，它们不指定寄存器。</li>
+<li>有AS_op，AS_move，AS_jump。</li>
+</ul>
+<h2 id="Liveness-Analysis"><a href="#Liveness-Analysis" class="headerlink" title="Liveness Analysis"></a>Liveness Analysis</h2><ul>
+<li>TODO</li>
+</ul>
+<h2 id="Register-Allocate"><a href="#Register-Allocate" class="headerlink" title="Register Allocate"></a>Register Allocate</h2><ul>
+<li>寄存器分配，这一章没有太多在实现上花功夫的点，作者给出了全部伪代码。而算法本身，还是有些晦涩难懂的（主要是合并与溢出）。</li>
+</ul>
+<h3 id="图着色"><a href="#图着色" class="headerlink" title="图着色"></a>图着色</h3><ul>
+<li>通过将变量的冲突关系表示为图中的边，寄存器分配等价于图着色问题，这是一个np完全问题，我们采用启发式的近似算法。但是，似乎最大的把握是即使不能着色还可以将变量放到内存里（即溢出），当然这个就给优化留了不少空间。</li>
+</ul>
+<h4 id="启发式算法-K-颜色数量"><a href="#启发式算法-K-颜色数量" class="headerlink" title="启发式算法(K=颜色数量)"></a>启发式算法(K=颜色数量)</h4><ul>
+<li>图中度数小于K的点，可以被去掉，并且入栈记录，不影响图可着色。</li>
+<li>剩下度数大于K的点，假设它可以被去掉，也入栈记录。</li>
+<li>然后栈弹出，任意分配颜色。</li>
+<li>很明显，如果没有第二步，即所有点度数都小于K，那么一定能着色。</li>
+<li>有了第二步，出栈时就有可能无法分配颜色，这时候就是一个溢出，需要将变量放到内存以减小它的活跃范围。</li>
+</ul>
+<h4 id="合并节点"><a href="#合并节点" class="headerlink" title="合并节点"></a>合并节点</h4><ul>
+<li>合并实际上算一种优化，没有合并也能够分配成功。</li>
+<li>合并的原因是两个变量有move关系，也就是在某一刻会出现a=b，并且之后b变量不再使用。那么a、b可以用同一个寄存器并省掉一次move。</li>
+<li>但是很遗憾的是，不能将没有冲突（没有冲突就说明a、b不会同时活跃，第二点就成立）的move两端就全部合并，盲目合并可能使得图不可着色，我们采取保守的合并策略，简单说就是，确保这次合并不会影响图着色。</li>
+<li>怎样保证呢？只要合并后的点是可被简化的，那么它肯定不影响。</li>
+<li>Briggs: a、b合并后的节点ab的高度数(&gt;K)邻节点数量&lt;=K。</li>
+<li>George: a的每一个邻居t，t与b已有冲突，或者t是低度数节点。</li>
+</ul>
+<h4 id="实现策略"><a href="#实现策略" class="headerlink" title="实现策略"></a>实现策略</h4><ul>
+<li>合并引入了复杂度，有这样一个问题，先合并还是先简化？<ul>
+<li>先简化，那么显然，不要直接将move相关的点给简化掉了，那样就少了一次合并机会。</li>
+<li>先合并，很显然，合并失败的可能性会很大，在极端情况下甚至等同于先简化后合并。</li>
+</ul>
+</li>
+<li>书上采用了先简化的策略，并且规定不能简化传送相关的点，但是有些传送相关的点也不能被合并，所以引入了冻结(freeze)，就是将一个点变为传送无关(放弃尝试合并，变为可简化的)。</li>
+<li>当简化、合并、冻结都无法进行，那么图中就全是传送无关的高度数节点，此时采用溢出，假设它可以着色，强行入栈。</li>
+<li>最后出栈分配颜色，如果遇到无法分配的，先记录下来，继续分配，最后重写程序，从活跃分析开始重来一次。</li>
+</ul>
+<h4 id="预着色节点"><a href="#预着色节点" class="headerlink" title="预着色节点"></a>预着色节点</h4><ul>
+<li>图中会有一些节点，代表的就是真实寄存器，比如rax，六个参数寄存器，callee-save寄存器等，这些在codegen时会被显式使用到，所以不可避免地会出现在图中。</li>
+<li>它们不应该被合并，也不能被简化，它们具有特定颜色。</li>
+<li>它们的活跃范围必须很小，要是真实寄存器的活跃范围都很大，那么还怎么分配寄存器给临时变量呢，它们一定会有很多冲突。</li>
+<li>活跃范围主要靠move给一个新的临时变量，过程结束再move回来，这样它在这个过程中就是不活跃的。</li>
+<li>实际上，临时变量和真实寄存器一定会被合并，随后的溢出是源于局部变量的分配，当出现call指令，会再用到真实寄存器，call节点上所有量都是活跃的，这时候局部变量和真实寄存器就会冲突，局部变量还会和临时变量冲突，导致必然出现溢出。由于临时变量度数大，所以会先入栈，反而会得不到颜色，导致真实溢出，最后被替换掉。</li>
+<li>非callee-save的寄存器活跃范围，需要在call指令的时候，将它们放到call的dst，表示不是跨过程活跃。这样会使得它们与跨过程活跃临时变量冲突，临时变量就会被迫先分配callee-save，如果都不够用，就会溢出。</li>
+</ul>
+<h3 id="x86-64的特点思考"><a href="#x86-64的特点思考" class="headerlink" title="x86-64的特点思考"></a>x86-64的特点思考</h3><ul>
+<li><p>一个非常trick的点，如果一个函数内，既有局部变量，又有call指令，那么它一定会产生溢出。</p>
+<ul>
+<li>如果局部变量放到非callee-save，那么call的时候会冲突。</li>
+<li>如果放到callee-save，放之前callee-save会冲突（也就是必须为自己的caller保存这些寄存器）。</li>
+</ul>
+</li>
+<li><p>很令人感到困惑，十六个寄存器竟然还这么多溢出，但是仔细想想确实是这样。</p>
+</li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Veiasai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://veiasai.github.io/2018/10/12/%E3%80%8A%E7%8E%B0%E4%BB%A3%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E2%80%94%E2%80%94C%E8%AF%AD%E8%A8%80%E6%8F%8F%E8%BF%B0%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">http://veiasai.github.io/2018/10/12/%E3%80%8A%E7%8E%B0%E4%BB%A3%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E2%80%94%E2%80%94C%E8%AF%AD%E8%A8%80%E6%8F%8F%E8%BF%B0%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%BC%96%E8%AF%91/">编译</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2018/10/28/kafka2-0%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%AB%98%E5%8E%8B%E6%B5%8B%E8%AF%95/"><img class="prev_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">kafka2.0集群搭建与高压测试</div></div></a></div><div class="next-post pull_right"><a href="/2018/10/12/%E3%80%8A%E8%99%9A%E6%8B%9F%E6%99%BA%E6%85%A7%E3%80%8B%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/"><img class="next_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">《虚拟智慧》阅读笔记</div></div></a></div></nav><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> Comment</span></div><div id="gitalk-container"></div><script>var gitalk = new Gitalk({
+  clientID: '8618b099f7db9d797dc7',
+  clientSecret: '4edc8a4fb8b173079b5a617fb9f23120a306e1b2',
+  repo: 'Veiasai.github.io',
+  owner: 'Veiasai',
+  admin: ['Veiasai'],
+  id: md5(decodeURI(location.pathname)),
+  language: 'en',
+  perPage: 10,
+  distractionFreeMode: false,
+  pagerDirection: 'last',
+  createIssueManually: false,
+  updateCountCallback: commentCount
+})
+gitalk.render('gitalk-container')
+
+function commentCount(n){
+  try {
+    document.getElementsByClassName('gitalk-comment-count')[0].innerHTML= n
+  } catch (e) {
+    return false
+  }
+}</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Veiasai</div><div class="framework-info"><span>Driven </span><a href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme </span><a href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="Read Mode"></i><i class="fa fa-plus" id="font_plus" title="Increase font size"></i><i class="fa fa-minus" id="font_minus" title="Decrease font size"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="Traditional Chinese and Simplified Chinese Conversion" target="_self">繁</a><i class="darkmode fa fa-moon-o" id="darkmode" title="Dark Mode"></i></div><div id="rightside-config-show"><div id="rightside_config" title="Setting"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="Scroll to comment"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="Table of Contents" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="Back to top" aria-hidden="true"></i></div></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/third-party/ClickShowText.js"></script></body></html>

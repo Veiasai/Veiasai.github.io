@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>pxe+tftp+dhcp无人值守安装Centos7 | Tornado</title><meta name="description" content="尝试自动装机，同时重点了解pxe过程。   OverviewPXE Preboot Execute Environment, supported by Intel. Booting in this mode, client gets it’s own ip and tftp server ip by DHCP. Fetch pxelinux.0 from tftp server and then"><meta name="keywords" content="Network,Ops"><meta name="author" content="Veiasai"><meta name="copyright" content="Veiasai"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/favicon.png"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="dns-prefetch" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="crossorigin"/><link rel="dns-prefetch" href="https://fonts.googleapis.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="dns-prefetch" href="//busuanzi.ibruce.info"/><meta name="twitter:card" content="summary"><meta name="twitter:title" content="pxe+tftp+dhcp无人值守安装Centos7"><meta name="twitter:description" content="尝试自动装机，同时重点了解pxe过程。   OverviewPXE Preboot Execute Environment, supported by Intel. Booting in this mode, client gets it’s own ip and tftp server ip by DHCP. Fetch pxelinux.0 from tftp server and then"><meta name="twitter:image" content="http://veiasai.github.io/img/avatar.png"><meta property="og:type" content="article"><meta property="og:title" content="pxe+tftp+dhcp无人值守安装Centos7"><meta property="og:url" content="http://veiasai.github.io/2019/04/27/pxe-tftp-dhcp%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%AE%89%E8%A3%85Centos7/"><meta property="og:site_name" content="Tornado"><meta property="og:description" content="尝试自动装机，同时重点了解pxe过程。   OverviewPXE Preboot Execute Environment, supported by Intel. Booting in this mode, client gets it’s own ip and tftp server ip by DHCP. Fetch pxelinux.0 from tftp server and then"><meta property="og:image" content="http://veiasai.github.io/img/avatar.png"><meta property="article:published_time" content="2019-04-27T10:01:22.000Z"><meta property="article:modified_time" content="2023-11-06T04:04:47.650Z"><script src="https://cdn.jsdelivr.net/npm/js-cookie/dist/js.cookie.min.js"></script><script>var autoChangeMode = '1'
+var t = Cookies.get("theme")
+if (autoChangeMode == '1'){
+  var isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches
+  var isLightMode = window.matchMedia("(prefers-color-scheme: light)").matches
+  var isNotSpecified = window.matchMedia("(prefers-color-scheme: no-preference)").matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined){
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport){
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour < 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+  }
+  } else if (t == 'light') activateLightMode()
+  else activateDarkMode()
+
+} else if (autoChangeMode == '2'){
+  now = new Date();
+  hour = now.getHours();
+  isNight = hour < 6 || hour >= 18
+  if(t === undefined) isNight? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode() 
+} else {
+  if ( t == 'dark' ) activateDarkMode()
+  else if ( t == 'light') activateLightMode()
+}
+
+function activateDarkMode(){
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+    document.querySelector('meta[name="theme-color"]').setAttribute('content','#000')
+  }
+}
+function activateLightMode(){
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null){
+  document.querySelector('meta[name="theme-color"]').setAttribute('content','#fff')
+  }
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="canonical" href="http://veiasai.github.io/2019/04/27/pxe-tftp-dhcp%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%AE%89%E8%A3%85Centos7/"><link rel="prev" title="dell-iDrac及racadm实战" href="http://veiasai.github.io/2019/05/09/dell-iDrac%E5%8F%8Aracadm%E5%AE%9E%E6%88%98/"><link rel="next" title="k8s-prometheus-operator" href="http://veiasai.github.io/2019/04/19/k8s-prometheus-operator/"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css"><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js"></script><script src="https://cdn.jsdelivr.net/npm/blueimp-md5/js/md5.min.js"></script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"cookieDomain":"https://xxx/","msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  bookmark: {
+    message_prev: 'Press',
+    message_next: 'to bookmark this page'
+  },
+  runtime_unit: 'days',
+  runtime: true,
+  copyright: undefined,
+  ClickShowText: {"text":"I,LOVE,YOU","fontSize":"15px"},
+  medium_zoom: false,
+  fancybox: true,
+  Snackbar: undefined,
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  highlightShrink: 'false',
+  isFontAwesomeV5: false,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+  
+}</script><script>var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isSidebar: true  
+  }</script><noscript><style>
+#page-header {
+  opacity: 1
+}
+.justified-gallery img{
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 7.0.0"><link rel="alternate" href="/atom.xml" title="Tornado" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">69</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">67</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">10</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div></div></div><i class="fa fa-arrow-right on" id="toggle-sidebar" aria-hidden="true">     </i><div id="sidebar"><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Overview"><span class="toc-number">1.</span> <span class="toc-text">Overview</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PXE"><span class="toc-number">1.1.</span> <span class="toc-text">PXE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DHCP"><span class="toc-number">1.2.</span> <span class="toc-text">DHCP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Tftp-Server"><span class="toc-number">1.3.</span> <span class="toc-text">Tftp Server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GUI"><span class="toc-number">1.4.</span> <span class="toc-text">GUI</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kick-Start"><span class="toc-number">1.5.</span> <span class="toc-text">Kick Start</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FTP-and-HTTP"><span class="toc-number">1.6.</span> <span class="toc-text">FTP and HTTP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Firewall"><span class="toc-number">1.7.</span> <span class="toc-text">Firewall</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Start-Service"><span class="toc-number">1.8.</span> <span class="toc-text">Start Service</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Problems"><span class="toc-number">1.9.</span> <span class="toc-text">Problems</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">2.</span> <span class="toc-text">Reference</span></a></li></ol></div></div></div><div id="body-wrap"><div class="post-bg" id="nav" style="background-image: url(https://i.loli.net/2020/05/01/IuWi8QbHvzjlOPw.jpg)"><div id="page-header"><span class="pull_left" id="blog_name"><a class="blog_title" id="site-name" href="/">Tornado</a></span><span class="pull_right menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> Link</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa fa-heart"></i><span> About</span></a></div><div class="menus_item"><a class="site-page"><i class="fa-fw fa fa-list" aria-hidden="true"></i><span> List</span><i class="fa fa-chevron-down menus-expand" aria-hidden="true"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fa fa-music"></i><span> Music</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fa fa-film"></i><span> Movie</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fa fa-bars fa-fw" aria-hidden="true"></i></a></span></span></div><div id="post-info"><div id="post-title"><div class="posttitle">pxe+tftp+dhcp无人值守安装Centos7</div></div><div id="post-meta"><div class="meta-firstline"><time class="post-meta__date"><span class="post-meta__date-created" title="Created 2019-04-27 10:01:22"><i class="fa fa-calendar" aria-hidden="true"></i> Created 2019-04-27</span><span class="post-meta__separator">|</span><span class="post-meta__date-updated" title="Updated 2023-11-06 04:04:47"><i class="fa fa-history" aria-hidden="true"></i> Updated 2023-11-06</span></time><span class="post-meta__categories"><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/Note/">Note</a></span></div><div class="meta-secondline"> </div><div class="meta-thirdline"><span class="post-meta-pv-cv"><i class="fa fa-eye post-meta__icon" aria-hidden="true"> </i><span>Post View:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-commentcount"></span></div></div></div></div><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>尝试自动装机，同时重点了解pxe过程。</p>
+<a id="more"></a>
+
+<h2 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h2><h3 id="PXE"><a href="#PXE" class="headerlink" title="PXE"></a>PXE</h3><ul>
+<li>Preboot Execute Environment, supported by Intel.</li>
+<li>Booting in this mode, client gets it’s own ip and tftp server ip by DHCP.</li>
+<li>Fetch <code>pxelinux.0</code> from tftp server and then follow it.</li>
+<li><code>pxelinux.cfg</code> contains serveral menus recording booting process.</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">default menu.c32</span><br><span class="line">#prompt 0</span><br><span class="line">timout 30</span><br><span class="line">MENU TITLE LinuxTech PXE Menu</span><br><span class="line">LABEL centos7_64</span><br><span class="line">MENU LABEL CentOS 7_x64</span><br><span class="line">KERNEL vmlinuz</span><br><span class="line">APPEND initrd&#x3D;initrd.img ks&#x3D;http:&#x2F;&#x2F;xx.xx.xx.xx&#x2F;ks.cfg</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Here we only have one item that means installing operating system by kickstart.</li>
+</ul>
+<h3 id="DHCP"><a href="#DHCP" class="headerlink" title="DHCP"></a>DHCP</h3><ul>
+<li>It’s easy to start a DHCP server, but here we need to configure a <code>next-server</code> which locate the tftps server.</li>
+<li><code>yum -y install dhcp</code></li>
+<li><code>/etc/dhcp/dhcpd.conf</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># DHCP Server Configuration file.</span><br><span class="line"></span><br><span class="line">ddns-update-style interim;</span><br><span class="line">ignore client-updates;</span><br><span class="line">authoritative;</span><br><span class="line">allow booting;</span><br><span class="line">allow bootp;</span><br><span class="line">allow unknown-clients;</span><br><span class="line"></span><br><span class="line"># internal subnet for my DHCP Server</span><br><span class="line">subnet 172.16.35.0 netmask 255.255.255.0 &#123;</span><br><span class="line">range 172.16.35.100 172.16.35.200;</span><br><span class="line">default-lease-time 600;</span><br><span class="line">max-lease-time 7200;</span><br><span class="line"></span><br><span class="line"># IP of PXE Server</span><br><span class="line">next-server 172.168.35.10;</span><br><span class="line">filename &quot;pxelinux.0&quot;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Tftp-Server"><a href="#Tftp-Server" class="headerlink" title="Tftp Server"></a>Tftp Server</h3><ul>
+<li>Trivial File Transfer Protocol, Port 69.</li>
+<li>We transfer <code>pxelinux.cfg</code> and <code>networkboot/*</code> through <code>tftp</code>.</li>
+</ul>
+<h3 id="GUI"><a href="#GUI" class="headerlink" title="GUI"></a>GUI</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yum groupinstall "X Window System"</span><br><span class="line">yum groupinstall "GNOME Desktop"</span><br><span class="line">startx</span><br></pre></td></tr></table></figure>
+
+<h3 id="Kick-Start"><a href="#Kick-Start" class="headerlink" title="Kick Start"></a>Kick Start</h3><ul>
+<li>Make a <code>ks.cfg</code> by desktop ui.</li>
+<li>Config<ul>
+<li>Root password</li>
+<li>Network</li>
+<li>Disk Parition</li>
+</ul>
+</li>
+</ul>
+<h3 id="FTP-and-HTTP"><a href="#FTP-and-HTTP" class="headerlink" title="FTP and HTTP"></a>FTP and HTTP</h3><ul>
+<li>Using FTP or HTTP to supply <code>.iso</code> to clients.</li>
+<li>FTP<ul>
+<li>root directory: <code>/var/ftp/</code></li>
+<li>I found <code>/var/ftp/pub</code> had a special authority, read-only file is hidden in that direcotry.</li>
+<li>We can use other path. <code>/var/ftp/centos</code></li>
+</ul>
+</li>
+<li>HTTP<ul>
+<li>root directory: <code>/var/www/html/</code></li>
+<li><code>mount Centos7.iso /var/www/html/centos</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="Firewall"><a href="#Firewall" class="headerlink" title="Firewall"></a>Firewall</h3><ul>
+<li>Enable ports<ul>
+<li>69</li>
+<li>4011</li>
+</ul>
+</li>
+<li>Enabel services<ul>
+<li>dhcp</li>
+<li>ftp</li>
+<li>http</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --add-service=ftp --permanent</span><br><span class="line">firewall-cmd --add-service=dhcp --permanent</span><br><span class="line">firewall-cmd --add-service=http --permanent</span><br><span class="line">firewall-cmd --add-port=69/tcp --permanent</span><br><span class="line">firewall-cmd --add-port=69/udp --permanent</span><br><span class="line">firewall-cmd --add-port=4011/udp --permanent</span><br></pre></td></tr></table></figure>
+
+<h3 id="Start-Service"><a href="#Start-Service" class="headerlink" title="Start Service"></a>Start Service</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">systemctl start xinetd</span><br><span class="line">systemctl start dhcpd</span><br><span class="line">systemctl start vsftpd</span><br><span class="line">systemctl start httpd</span><br><span class="line">systemctl start tftp</span><br></pre></td></tr></table></figure>
+
+<h3 id="Problems"><a href="#Problems" class="headerlink" title="Problems"></a>Problems</h3><ul>
+<li>Memory<ul>
+<li>I recommend that the client(not installer) has more than 2GB memory.</li>
+<li>When using VMware to simulate, 1GB memory traps in trouble.</li>
+</ul>
+</li>
+</ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://blog.csdn.net/u012319493/article/details/82822954" target="_blank" rel="noopener">趣谈网络协议—DHCP与PXE：IP是怎么来的，又是怎么没的？</a></li>
+<li><a href>Kickstart.cfg</a></li>
+<li><a href="https://blog.csdn.net/cx55887/article/details/82858100" target="_blank" rel="noopener">基于pxe+dhcp+ks实现自动安装系统</a></li>
+<li><a href="https://www.cnblogs.com/mchina/p/centos-pxe-kickstart-auto-install-os.html" target="_blank" rel="noopener">CentOS 6.4下PXE+Kickstart无人值守安装操作系统</a></li>
+<li><a href="https://www.linuxtechi.com/configure-pxe-installation-server-centos-7/" target="_blank" rel="noopener">Configure PXE (Network Boot) installation Server on CentOS 7.x</a></li>
+<li><a href="https://www.zhangfangzhou.cn/bad-superblock-on-devloop0.html" target="_blank" rel="noopener">curl (23) Failed writing body in pxe</a></li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Veiasai</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://veiasai.github.io/2019/04/27/pxe-tftp-dhcp%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%AE%89%E8%A3%85Centos7/">http://veiasai.github.io/2019/04/27/pxe-tftp-dhcp%E6%97%A0%E4%BA%BA%E5%80%BC%E5%AE%88%E5%AE%89%E8%A3%85Centos7/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Network/">Network</a><a class="post-meta__tags" href="/tags/Ops/">Ops</a></div><div class="post_share"><div class="social-share" data-image="/img/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"/><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js"></script></div></div><nav class="pagination_post" id="pagination"><div class="prev-post pull_left"><a href="/2019/05/09/dell-iDrac%E5%8F%8Aracadm%E5%AE%9E%E6%88%98/"><img class="prev_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">dell-iDrac及racadm实战</div></div></a></div><div class="next-post pull_right"><a href="/2019/04/19/k8s-prometheus-operator/"><img class="next_cover" src="/" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">k8s-prometheus-operator</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fa fa-fw fa-thumbs-up" aria-hidden="true"></i><span> Recommend</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/2019/05/11/nmcli、hostnamectl等网络配置实战/" title="nmcli、hostnamectl等网络配置实战"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-05-11</div><div class="relatedPosts_title">nmcli、hostnamectl等网络配置实战</div></div></a></div><div class="relatedPosts_item"><a href="/2019/05/11/兼容legacy和uefi的pxe配置/" title="兼容legacy和uefi的pxe配置"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-05-11</div><div class="relatedPosts_title">兼容legacy和uefi的pxe配置</div></div></a></div><div class="relatedPosts_item"><a href="/2019/06/11/Dive-into-nginx-http-ssl-and-upstream-ssl/" title="Dive into nginx http_ssl and upstream ssl"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-06-11</div><div class="relatedPosts_title">Dive into nginx http_ssl and upstream ssl</div></div></a></div><div class="relatedPosts_item"><a href="/2019/04/11/How-to-limit-bandwidth-in-Swarm-overlay-network/" title="How to limit bandwidth in Swarm overlay network"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-04-11</div><div class="relatedPosts_title">How to limit bandwidth in Swarm overlay network</div></div></a></div><div class="relatedPosts_item"><a href="/2020/03/26/openstack单机多网卡/" title="openstack单机多网卡"><img class="relatedPosts_cover" src="https://veiablog.oss-cn-shanghai.aliyuncs.com/taylor-vick-M5tzZtFCOfs-unsplash.jpg?x-oss-process=style/compress"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2020-03-26</div><div class="relatedPosts_title">openstack单机多网卡</div></div></a></div><div class="relatedPosts_item"><a href="/2019/04/18/helm实战-安装istio、kafka、zookeepr/" title="helm实战-安装istio、kafka、zookeepr"><img class="relatedPosts_cover" src="undefined"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i> 2019-04-18</div><div class="relatedPosts_title">helm实战-安装istio、kafka、zookeepr</div></div></a></div></div><div class="clear_both"></div></div><hr><div id="post-comment"><div class="comment_headling"><i class="fa fa-comments fa-fw" aria-hidden="true"></i><span> Comment</span></div><div id="gitalk-container"></div><script>var gitalk = new Gitalk({
+  clientID: '8618b099f7db9d797dc7',
+  clientSecret: '4edc8a4fb8b173079b5a617fb9f23120a306e1b2',
+  repo: 'Veiasai.github.io',
+  owner: 'Veiasai',
+  admin: ['Veiasai'],
+  id: md5(decodeURI(location.pathname)),
+  language: 'en',
+  perPage: 10,
+  distractionFreeMode: false,
+  pagerDirection: 'last',
+  createIssueManually: false,
+  updateCountCallback: commentCount
+})
+gitalk.render('gitalk-container')
+
+function commentCount(n){
+  try {
+    document.getElementsByClassName('gitalk-comment-count')[0].innerHTML= n
+  } catch (e) {
+    return false
+  }
+}</script></div></article></main><footer id="footer" data-type="color"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By Veiasai</div><div class="framework-info"><span>Driven </span><a href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>Theme </span><a href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section class="rightside" id="rightside"><div id="rightside-config-hide"><i class="fa fa-book" id="readmode" title="Read Mode"></i><i class="fa fa-plus" id="font_plus" title="Increase font size"></i><i class="fa fa-minus" id="font_minus" title="Decrease font size"></i><a class="translate_chn_to_cht" id="translateLink" href="javascript:translatePage();" title="Traditional Chinese and Simplified Chinese Conversion" target="_self">繁</a><i class="darkmode fa fa-moon-o" id="darkmode" title="Dark Mode"></i></div><div id="rightside-config-show"><div id="rightside_config" title="Setting"><i class="fa fa-cog" aria-hidden="true"></i></div><a id="to_comment" href="#post-comment" title="Scroll to comment"><i class="scroll_to_comment fa fa-comments">  </i></a><i class="fa fa-list-ul close" id="mobile-toc-button" title="Table of Contents" aria-hidden="true"></i><i class="fa fa-arrow-up" id="go-up" title="Back to top" aria-hidden="true"></i></div></section><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@3/instantpage.min.js" type="module"></script><script src="/js/third-party/ClickShowText.js"></script></body></html>
